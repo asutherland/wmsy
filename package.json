@@ -1,7 +1,4 @@
 {
   "name": "wmsy",
-  "description": "Widget Manifesting SYstem",
-  "directories": {
-    "lib": "lib",
-  }
+  "description": "Widget Manifesting SYstem"
 }
