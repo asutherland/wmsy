@@ -1,4 +1,4 @@
-var DecisionSpace = require("decision-space").DecisionSpace;
+var DecisionSpace = require("wmsy/decision-space").DecisionSpace;
 
 exports.testMain = function DecisionSpace_test() {
   function teq(a, b) {
