@@ -23,6 +23,16 @@ exports.testNameParsing = function testNameParsing() {
   assert.equal(asuth.name, "Andrew Sutherland");
   assert.equal(asuth.handle, "asuth");
 
+  var ludo = bzm.BugPeeps.fromUserJson({
+    id: 100,
+    name: "ludo@example.com",
+    real_name: "Ludo [:_Tsk_ ] (away until May 16th)",
+    ref: "http://blah.blah/"
+  });
+  assert.equal(ludo.email, "ludo@example.com");
+  assert.equal(ludo.name, "Ludo");
+  assert.equal(ludo.handle, "_Tsk_");
+
   // we can stop checking email addresses now...
 
   var vacay = bzm.BugPeeps.fromUserJson({
@@ -69,6 +79,14 @@ exports.testNameParsing = function testNameParsing() {
   });
   assert.equal(nonick.name, "Non Nicknamed");
   assert.equal(nonick.handle, "Non Nicknamed");
+
+  var noreal = bzm.BugPeeps.fromUserJson({
+    id: 8,
+    name: "noreal@example.com",
+    ref: "http://blah.blah/"
+  });
+  assert.equal(noreal.name, "noreal@example.com");
+  assert.equal(noreal.handle, "noreal@example.com");
 };
 
 if (require.main == module)
