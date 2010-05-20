@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Bugzilla List</title>
+    <script type="text/javascript" src="../../../teleport/lib/teleport.js"></script>
+  </head>
+<body>
+  <script>
+    require.Sandbox({
+      global: window,
+      catalog: {
+        "wmsy": { path: "../../" },
+      },
+    }).main("wmsy/examples/bugzilla-main-list");
+  </script>
+  <div id="content" style="display: inline-block;">
+  </div>
+</body>
+</html>
