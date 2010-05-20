@@ -7,4 +7,6 @@ To get fake data, you would so something like the following, assuming BZUSERNAME
 
 curl -o result.json -H "Accept: application/json" -H "Content-Type: application/json" "https://api-dev.bugzilla.mozilla.org/latest/bug?username=$BZUSERNAME&password=$BZPASSWORD&id=554806,543737,524623,549931,562608,562934&include_fields=_default,attachments,blocks,cc,comments,depends_on,dupe_of,flags,groups,history,see_also,token"
 
+You can also use other queries that the bugzilla REST API understands, but be aware that it does not support "quicksearch", so sometimes it might be easiest to run a quicksearch and then get your bug numbers from that.
+
 Caveats: if your password has characters in it that are weird URL-wise, you might want to change your password or just be very careful about correctly escaping them.
