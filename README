@@ -9,4 +9,7 @@ curl -o result.json -H "Accept: application/json" -H "Content-Type: application/
 
 You can also use other queries that the bugzilla REST API understands, but be aware that it does not support "quicksearch", so sometimes it might be easiest to run a quicksearch and then get your bug numbers from that.
 
+In order to examine the json data, you may want to prettify it since the REST API gives it to you as one line.  The following simple python script can be useful if you don't have one already:
+http://hg.mozilla.org/users/bugmail_asutherland.org/tb-test-help/file/tip/prettify_json
+
 Caveats: if your password has characters in it that are weird URL-wise, you might want to change your password or just be very careful about correctly escaping them.
