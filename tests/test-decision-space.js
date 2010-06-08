@@ -1,11 +1,8 @@
 var DecisionSpace = require("wmsy/decision-space").DecisionSpace;
 
-exports.testMain = function DecisionSpace_test() {
+exports.testMain = function DecisionSpace_test(test) {
   function teq(a, b) {
-    if (a != b)
-      throw new Error(a + " != " + b);
-    else
-      print("  pass: " + a + " == " + b);
+    test.assertEqual(a, b);
   }
 
   var ds, p;
@@ -139,5 +136,9 @@ exports.testMain = function DecisionSpace_test() {
   teq(ds.evaluate({b: 1}), "b");
 };
 
-if (require.main == module)
-  require("os").exit(require("test").run(exports));
+function print(x) {
+  console.log(x);
+}
+
+//if (require.main == module)
+//  require("os").exit(require("test").run(exports));
