@@ -1,6 +1,7 @@
 
 Everything in here expects that this directory will have two directories alongside it:
 - teleport from http://github.com/Gozala/teleport
+- protovis 3.2 with 'make' run
 - fakedata, with JSON files in it, currently tb31rcblockers.json
 
 To get fake data, you would so something like the following, assuming BZUSERNAME and BZPASSWORD values are defined:
