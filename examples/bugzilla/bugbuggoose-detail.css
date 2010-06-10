@@ -1,5 +1,17 @@
+html {
+  height: 100%;
+  width: 100%;
+}
+
 body {
-  width: 960px;
-  margin: 0 auto 0 auto;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  display: -moz-box; display: -webkit-box; display: box;
+  -moz-box-orient: horizontal; -webkit-box-orient: horizontal;
+    box-orient: horizontal;
+  -moz-box-pack: center; -webkit-box-pack: center; box-pack: center;
   font-family: "Helvetica Neue", Helvetica, Arial, Sans-serif;
 }
