@@ -58,15 +58,15 @@ function makeKidHelpers() {
     var il, ik = 0;
     for (il = 0; il < parPre.length; il++, ik++) {
       test.assertEqual(aBindings[ik].obj, parPre[il],
-                       aDesc + " parpre kid #" + il + " @ vis kids #" + ik);
+                       desc + " parpre kid #" + il + " @ vis kids #" + ik);
     }
     for (il = 0; il < fullVisKids.length; il++, ik++) {
       test.assertEqual(aBindings[ik].obj, fullVisKids[il],
-                       aDesc + " vis kid #" + il + " @ vis kids #" + ik);
+                       desc + " vis kid #" + il + " @ vis kids #" + ik);
     }
     for (il = 0; il < parPost.length; il++, ik++) {
       test.assertEqual(aBindings[ik].obj, parPost[il],
-                       aDesc + " parpost kid #" + il + " @ vis kids #" + ik);
+                       desc + " parpost kid #" + il + " @ vis kids #" + ik);
     }
   },
 
@@ -105,29 +105,29 @@ function makeKidHelpers() {
       test.fail("did not receive expected update via visibleBindings");
 
     test.assertEqual(kids.length,
-                     aPreKids.length + aParPre.length + aFullVisKids.length +
-                       aParPost.length + aPostKids.length,
-                     aDesc + " total kid count");
+                     preKids.length + parPre.length + fullVisKids.length +
+                       parPost.length + postKids.length,
+                     desc + " total kid count");
     var il, ik = 0;
     for (il = 0; il < preKids.length; il++, ik++) {
       test.assertEqual(kids[ik].binding.obj, preKids[il],
-                       aDesc + " pre kid #" + il + " @ all kids #" + ik);
+                       desc + " pre kid #" + il + " @ all kids #" + ik);
     }
     for (il = 0; il < parPre.length; il++, ik++) {
       test.assertEqual(kids[ik].binding.obj, parPre[il],
-                       aDesc + " parpre kid #" + il + " @ all kids #" + ik);
+                       desc + " parpre kid #" + il + " @ all kids #" + ik);
     }
     for (il = 0; il < fullVisKids.length; il++, ik++) {
       test.assertEqual(kids[ik].binding.obj, fullVisKids[il],
-                       aDesc + " vis kid #" + il + " @ all kids #" + ik);
+                       desc + " vis kid #" + il + " @ all kids #" + ik);
     }
     for (il = 0; il < parPost.length; il++, ik++) {
       test.assertEqual(kids[ik].binding.obj, parPost[il],
-                       aDesc + " parpost kid #" + il + " @ all kids #" + ik);
+                       desc + " parpost kid #" + il + " @ all kids #" + ik);
     }
     for (il = 0; il < postKids.length; il++, ik++) {
       test.assertEqual(kids[ik].binding.obj, postKids[il],
-                       aDesc + " post kid #" + il + " @ all kids #" + ik);
+                       desc + " post kid #" + il + " @ all kids #" + ik);
     }
   }
   };
@@ -146,7 +146,8 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
     },
     structure: {
       items: wy.libWidget({type: "virt-list",
-                           constraint: {type: "item"}}, "items"),
+                           constraint: {type: "item"},
+                           id: wy.SELF}, "items"),
     },
     style: {
       root: [
@@ -174,7 +175,7 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
     },
     style: {
       root: [
-        "height: 40px;",
+        "min-height: 40px; height: 40px; max-height: 40px;",
         "margin-bottom: 10px;",
         "overflow: hidden;",
       ],
@@ -198,11 +199,12 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
   function check() {
     var emitter = wy.wrapElement(page.document.getElementById("root"));
 
-    // - check initial setup and padding
+    // - check initial setup and padding (0, 0 - 200, 320)
     kidHelpers.bind(null, test); // partial bind; virtual widget not yet avail
-    expectKids("initial", [], [], [0, 1, 2, 3], [], [4, 5]);
+    expectKids("initial", [], [], [0, 1, 2, 3], [], [4, 5, 6]);
 
-    var binding = emitter.emit({type: "simple-widget", obj: rootObj});
+
+    var binding = emitter.emit({type: "container", obj: rootObj});
     var virtBinding = binding.items_element.binding;
     var virtNode = virtBinding.domNode;
     var kids = virtNode.children;
