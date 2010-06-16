@@ -157,8 +157,9 @@ function makeKidHelpers() {
     }
 
     // make sure the index ranges are correct...
-    test.assertEqual(binding.firstIndex, preKids[0], "firstIndex");
-    test.assertEqual(binding.lastIndex, postKids[postKids.length-1],
+    test.assertEqual(binding.firstIndex, kids[0].binding.obj,
+                     "firstIndex (actual != expected)");
+    test.assertEqual(binding.lastIndex, kids[kids.length-1].binding.obj,
                      "lastIndex");
 
     // now make sure the item map does not have anything not in the expected
