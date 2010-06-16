@@ -35,16 +35,17 @@ var wheelScrollUp = dth.wheelScrollUp, wheelScrollDown = dth.wheelScrollDown;
  * @param test The test instance to invoke all assertion/test methods on.
  */
 function makeKidHelpers() {
-  var kids, test;
+  var kids, test, binding;
   var visibleExpected = false;
   var desc, preKids, parPre, fullVisKids, parPost, postKids;
   return {
-  bind: function(aKids, aTest) {
+  bind: function(aKids, aTest, aBinding) {
     kids = aKids;
     test = aTest;
+    binding = aBinding;
   },
 
-  visibleBindings: function kidHelperVisibleBindings(aOrigin, aBindings) {
+  visibleBindings: function kidHelperVisibleBindings(aBindings) {
     if (!visibleExpected)
       test.fail("unexpected update via visibleBindings: " + aBindings);
     else
@@ -52,20 +53,20 @@ function makeKidHelpers() {
     visibleExpected = false;
 
     test.assertEqual(aBindings.length,
-                     parPre.length + fullKids.length + parPost.length,
-                     desc + " visible binding count");
+                     parPre.length + fullVisKids.length + parPost.length,
+                     desc + " visible binding count (actual != desired)");
 
     var il, ik = 0;
     for (il = 0; il < parPre.length; il++, ik++) {
-      test.assertEqual(aBindings[ik].obj, parPre[il],
+      test.assertEqual(parPre[il], aBindings[ik].obj,
                        desc + " parpre kid #" + il + " @ vis kids #" + ik);
     }
     for (il = 0; il < fullVisKids.length; il++, ik++) {
-      test.assertEqual(aBindings[ik].obj, fullVisKids[il],
+      test.assertEqual(fullVisKids[il], aBindings[ik].obj,
                        desc + " vis kid #" + il + " @ vis kids #" + ik);
     }
     for (il = 0; il < parPost.length; il++, ik++) {
-      test.assertEqual(aBindings[ik].obj, parPost[il],
+      test.assertEqual(parPost[il], aBindings[ik].obj,
                        desc + " parpost kid #" + il + " @ vis kids #" + ik);
     }
   },
@@ -94,40 +95,76 @@ function makeKidHelpers() {
     fullVisKids = aFullVisKids;
     parPost = aParPost;
     postKids = aPostKids;
+
+    visibleExpected = true;
   },
 
   /**
    * Perform a fairly thorough check that all the expected nodes exist and
-   *  that their visibility states are as expected.
+   *  that their visibility states are as expected.  Also verify the itemMap
+   *  contains exactly the set of visible kids.
    */
   checkKids: function checkKids() {
     if (visibleExpected)
-      test.fail("did not receive expected update via visibleBindings");
+      test.fail(desc + ": did not receive expected update via visibleBindings");
+
+    var expectedItemMap = {}, itemMap = binding.itemMap;
 
     test.assertEqual(kids.length,
                      preKids.length + parPre.length + fullVisKids.length +
                        parPost.length + postKids.length,
-                     desc + " total kid count");
-    var il, ik = 0;
+                     desc + " total kid count (actual != expected)");
+    var il, ik = 0, kid;
     for (il = 0; il < preKids.length; il++, ik++) {
-      test.assertEqual(kids[ik].binding.obj, preKids[il],
+      test.assertEqual(preKids[il], kids[ik].binding.obj,
                        desc + " pre kid #" + il + " @ all kids #" + ik);
+      kid = preKids[il];
+      expectedItemMap[kid] = true;
+      if (!(kid in itemMap))
+        test.fail("kid " + kid + " not in item map!");
     }
     for (il = 0; il < parPre.length; il++, ik++) {
-      test.assertEqual(kids[ik].binding.obj, parPre[il],
+      test.assertEqual(parPre[il], kids[ik].binding.obj,
                        desc + " parpre kid #" + il + " @ all kids #" + ik);
+      kid = parPre[il];
+      expectedItemMap[kid] = true;
+      if (!(kid in itemMap))
+        test.fail("kid " + kid + " not in item map!");
     }
     for (il = 0; il < fullVisKids.length; il++, ik++) {
-      test.assertEqual(kids[ik].binding.obj, fullVisKids[il],
+      test.assertEqual(fullVisKids[il], kids[ik].binding.obj,
                        desc + " vis kid #" + il + " @ all kids #" + ik);
+      kid = fullVisKids[il];
+      expectedItemMap[kid] = true;
+      if (!(kid in itemMap))
+        test.fail("kid " + kid + " not in item map!");
     }
     for (il = 0; il < parPost.length; il++, ik++) {
-      test.assertEqual(kids[ik].binding.obj, parPost[il],
+      test.assertEqual(parPost[il], kids[ik].binding.obj,
                        desc + " parpost kid #" + il + " @ all kids #" + ik);
+      kid = parPost[il];
+      expectedItemMap[kid] = true;
+      if (!(kid in itemMap))
+        test.fail("kid " + kid + " not in item map!");
     }
     for (il = 0; il < postKids.length; il++, ik++) {
-      test.assertEqual(kids[ik].binding.obj, postKids[il],
+      test.assertEqual(postKids[il], kids[ik].binding.obj,
                        desc + " post kid #" + il + " @ all kids #" + ik);
+      kid = postKids[il];
+      expectedItemMap[kid] = true;
+      if (!(kid in itemMap))
+        test.fail("kid " + kid + " not in item map!");
+    }
+
+    // make sure the index ranges are correct...
+    test.assertEqual(binding.firstIndex, preKids[0], "firstIndex");
+    test.assertEqual(binding.lastIndex, postKids[postKids.length-1],
+                     "lastIndex");
+
+    // now make sure the item map does not have anything not in the expected
+    for (var id in itemMap) {
+      if (!(id in expectedItemMap))
+        test.fail("item map has " + id + " but it is not expected!");
     }
   }
   };
@@ -208,7 +245,7 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
     var virtBinding = binding.items_element.binding;
     var virtNode = virtBinding.domNode;
     var kids = virtNode.children;
-    kidHelpers.bind(kids, test); // full bind
+    kidHelpers.bind(kids, test, virtBinding); // full bind
 
     checkKids();
 
@@ -228,7 +265,7 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
     wheelScrollUp(virtNode, 120);
 
     // - scroll wheel down, scrolling should happen! (0, 120 - 320, 440)
-    // 0,1 should be cached around from before, 6, 7,8 should be newly added...
+    // 0,1 should be cached around from before, 7,8 should be newly added...
     expectKids("scrolled down 120", [0, 1], [2], [3, 4, 5], [6], [7, 8]);
     wheelScrollDown(virtNode, 120);
     checkKids();
@@ -251,7 +288,7 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
     //  satisfied.  Everything we padded in last scroll is retained.
     expectKids("scrolled up 240",
                [2, 3, 4], [], [5, 6, 7, 8], [], [9, 10, 11, 12, 13]);
-    wheelScrollDown(virtNode, 120);
+    wheelScrollUp(virtNode, 120);
     checkKids();
 
     // - scroll wheel down, same as last 360 (120, 360 - 560, 680)
@@ -261,11 +298,26 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
     checkKids();
 
     // - scroll wheel down, more falls off (240, 480 - 680, 800)
+    // (16 needs to get bound because we don't get the padding until the next
+    //  dude shows up, I think...? (tired))
     expectKids("scrolled down 480",
-               [5, 6, 7, 8], [9], [10, 11, 12], [13], [14, 15]);
+               [4, 5, 6, 7, 8], [9], [10, 11, 12], [13], [14, 15, 16]);
     wheelScrollDown(virtNode, 120);
     checkKids();
 
+    // - scroll wheel up, meh (240, 360 - 560, 800)
+    expectKids("scrolled up 360",
+               [4, 5, 6], [7], [8, 9, 10], [11], [12, 13, 14, 15, 16]);
+    wheelScrollUp(virtNode, 120);
+    checkKids();
+
+    // - scroll wheel up, regenerate 2-4 (120, 240 - 440, 680)
+    // (this is the first time we insert more than 1 prior node)
+    // (this is the first time we truncate off the numerically high end)
+    expectKids("scrolled up 240",
+               [2, 3, 4], [], [5, 6, 7, 8], [], [9, 10, 11, 12, 13]);
+    wheelScrollUp(virtNode, 120);
+    checkKids();
 
     // --- seeking
 
@@ -273,26 +325,51 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
     //  and relative positioning along the item in the question.
 
     // -- seek in the midst of where we are, checking positioning
+    // (210, 450 - 650, 770)
     // - 9 at the top...
     expectKids("seek 9 @ top",
-               [5, 6, 7, 8], [], [9, 10, 11, 12], [], [13, 14, 15]);
-    virtBinding.seek(9, 0.0, "top", 0);
-    test.assertEqual(virtBinding.itemMap[9].domNode.offsetTop,
-                     virtNode.offsetTop,
+               [4, 5, 6, 7, 8], [], [9, 10, 11, 12], [], [13, 14, 15]);
+    binding.emit_seek(9, 0.0, "top", 0);
+    test.assertEqual(virtBinding.itemMap[9].domNode.getBoundingClientRect().top,
+                     virtNode.getBoundingClientRect().top,
                      "9 should be aligned at the top");
     checkKids();
 
-    // - 12 at the bottom
+    // - 12 at the bottom (210, 440 - 640, 770)
     expectKids("seek 12 @ bottom",
-               [5, 6, 7, 8], [], [9, 10, 11, 12], [], [13, 14, 15]);
-    virtBinding.seek(12, 1.0, "bottom", 0);
-    test.assertEqual(virtBinding.itemMap[12].domNode.offsetTop +
-                       virtBinding.itemMap[12].domNode.clientHeight,
-                     virtNode.offsetTop + virtNode.clientHeight - 1,
-                     "12 should be aligned at the bottom");
+               [4, 5, 6, 7, 8], [], [9, 10, 11, 12], [], [13, 14, 15]);
+    binding.emit_seek(12, 1.0, "bottom", 0);
+    test.assertEqual(
+      virtBinding.itemMap[12].domNode.getBoundingClientRect().bottom,
+      virtNode.getBoundingClientRect().bottom,
+      "12 should be aligned at the bottom");
     checkKids();
 
-    // - 10 cen
+    // XXX do more positioning stuff in the already extant range.
+
+    // -- non-overlapping seek
+    // - 32 @ top, (1480, 1600 - 1800, 1920)
+    expectKids("seek 32 @ top",
+               [29, 30, 31], [], [32, 33, 34, 35], [], [36, 37, 38]);
+    binding.emit_seek(32, 0.0, "top", 0);
+    checkKids();
+
+    // -- adjacent seek
+    // - 39 @ top (link before)
+    expectKids("seek 39 @ top",
+               [34, 35, 36, 37, 38], [], [39, 40, 41, 42], [], [43, 44, 45]);
+    binding.emit_seek(39, 0.0, "top", 0);
+    checkKids();
+
+    // - 33 @ top (link after)
+    expectKids("seek 33 @ top",
+               [30, 31, 32], [], [33, 34, 35, 36], [], [37, 38, 39, 40, 41]);
+    binding.emit_seek(33, 0.0, "top", 0);
+    checkKids();
+
+
+    // -- adjacent-ish seek
+    // - 47
 
     test.done();
   }
