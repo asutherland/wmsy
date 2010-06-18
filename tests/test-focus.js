@@ -2,6 +2,10 @@
  * Test focus mechanisms,
  */
 
+var Pages = require("page-worker");
+
+var wmsy = require("wmsy/wmsy");
+
 /**
  * Simple setup with just focusable items in a vertical widget list.
  */
