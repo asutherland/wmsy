@@ -82,7 +82,7 @@ exports.testTwoVerticalDomains = function testTwoVerticalDomains(test) {
 };
 
 /**
- *
+ * Test that we can imitate traditional tree-focus.
  */
 exports.testTreeFocus = function testTreeFocus(test) {
   var wy = new wmsy.WmsyDomain({id: "f-tree", domain: "f-tree"});
@@ -123,5 +123,16 @@ exports.testTreeFocus = function testTreeFocus(test) {
       }
     ],
   };
+
+};
+
+/**
+ * Trigger a popup that has its own focus domain or what not going on and make
+ *  sure that:
+ * - Moving focus around inside the popup works
+ * - The focus state of the document remains unchanged, especially when we go
+ *   back.
+ */
+exports.testPopupFocus = function testPopupFocus(test) {
 
 };
