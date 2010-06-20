@@ -8,7 +8,7 @@ var wmsy = require("wmsy/wmsy");
 
 var sendKeyEvent = require("wmsy/dom-test-helper").sendKeyEvent;
 
-function bindPush(aDomNode) {
+function bindPush(aDomNode, aVertical) {
   return {
     up: function() {
       sendKeyEvent(aDomNode, 0, 38, false);
@@ -21,24 +21,30 @@ function bindPush(aDomNode) {
     },
     right: function() {
       sendKeyEvent(aDomNode, 0, 39, false);
+    },
+    more: function() {
+      sendKeyEvent(aDomNode, 0, aVertical ? 40 : 39);
+    },
+    less: function() {
+      sendKeyEvent(aDomNode, 0, aVertical ? 38 : 37);
     }
   };
 }
 
-/**
- * Simple setup with just focusable items in a vertical widget list.
- */
-exports.testSimpleFocus = function testSimpleFocus(test) {
-  var wy = new wmsy.WmsyDomain({id: "f-simple", domain: "f-simple"});
+function baseListFocus(test, aVertical) {
+  var vertString = aVertical ? "vertical" : "horizontal";
+
+  var wy = new wmsy.WmsyDomain({id: "f-list-" + vertString,
+                                domain: "f-list-" + vertString});
 
   wy.defineWidget({
     name: "container",
-    focus: wy.focus.domain.vertical("items"),
+    focus: wy.focus.domain[vertString]("items"),
     constraint: {
       type: "root",
     },
     structure: {
-      items: wy.vertList({type: "item"}, "items"),
+      items: wy.widgetList({type: "item"}, "items", {vertical: aVertical}),
     },
   });
   wy.defineWidget({
@@ -74,39 +80,50 @@ exports.testSimpleFocus = function testSimpleFocus(test) {
     var binding = emitter.emit({type: "root", obj: objRoot});
 
     var fm = page.document.wmsyFocusManager;
-    var push = bindPush(binding.domNode);
+    var push = bindPush(binding.domNode, aVertical);
 
     // 'a' should be focused by default
-    test.assertEqual(fm.focusedBinding.id, "a");
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
 
     // push down and get to 'b'
-    push.down();
-    test.assertEqual(fm.focusedBinding.id, "b");
+    push.more();
+    test.assertEqual(fm.focusedBinding.obj.id, "b");
 
     // push down and get to 'c'
-    push.down();
-    test.assertEqual(fm.focusedBinding.id, "c");
+    push.more();
+    test.assertEqual(fm.focusedBinding.obj.id, "c");
 
     // push down and stay on 'c'
-    push.down();
-    test.assertEqual(fm.focusedBinding.id, "c");
+    push.more();
+    test.assertEqual(fm.focusedBinding.obj.id, "c");
 
     // push up and get to 'b'
-    push.up();
-    test.assertEqual(fm.focusedBinding.id, "b");
+    push.less();
+    test.assertEqual(fm.focusedBinding.obj.id, "b");
 
     // push up and get to 'a'
-    push.up();
-    test.assertEqual(fm.focusedBinding.id, "a");
+    push.less();
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
 
     // push up and stay on 'a'
-    push.up();
-    test.assertEqual(fm.focusedBinding.id, "a");
-
+    push.less();
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
 
     test.done();
   }
 };
+
+/**
+ * Simple setup with just focusable items in a vertical widget list.
+ */
+exports.testVertListFocus = function testVertListFocus(test) {
+  baseListFocus(test, true);
+};
+
+exports.testHorizListFocus = function testHorizListFocus(test) {
+  baseListFocus(test, false);
+};
+
 
 /**
  * Vertical list of vertical lists whose items are the only focusable things.
