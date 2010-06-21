@@ -31,6 +31,10 @@ function bindPush(aDomNode, aVertical) {
   };
 }
 
+/**
+ * Parameterizable test where all we have is a widget list of focusable items
+ *  inside a single domain.
+ */
 function baseListFocus(test, aVertical) {
   var vertString = aVertical ? "vertical" : "horizontal";
 
@@ -113,9 +117,6 @@ function baseListFocus(test, aVertical) {
   }
 };
 
-/**
- * Simple setup with just focusable items in a vertical widget list.
- */
 exports.testVertListFocus = function testVertListFocus(test) {
   baseListFocus(test, true);
 };
@@ -123,6 +124,100 @@ exports.testVertListFocus = function testVertListFocus(test) {
 exports.testHorizListFocus = function testHorizListFocus(test) {
   baseListFocus(test, false);
 };
+
+/**
+ * Parameterizable test where all we have is a widget that is a focus domain
+ *  that has a bunch of sub-widgets that are focusable.
+ */
+function baseWidgetFocus(test, aVertical) {
+  var vertString = aVertical ? "vertical" : "horizontal";
+
+  var wy = new wmsy.WmsyDomain({id: "f-widget-" + vertString,
+                                domain: "f-widget-" + vertString});
+
+  wy.defineWidget({
+    name: "container",
+    focus: wy.focus.domain[vertString]("a", "b", "c"),
+    constraint: {
+      type: "root",
+    },
+    structure: {
+      a: wy.widget({type: "item"}, "a"),
+      c: wy.widget({type: "item"}, "c"), // intentionally out of sequence
+      b: wy.widget({type: "item"}, "b"),
+    },
+  });
+  wy.defineWidget({
+    name: "item",
+    focus: wy.focus.item,
+    constraint: {
+      type: "item",
+    },
+    structure: {
+      label: wy.bind("id"),
+    },
+  });
+
+  var objRoot = {
+    a: {id: "a"},
+    b: {id: "b"},
+    c: {id: "c"},
+  };
+
+  test.waitUntilDone();
+
+  var page = Pages.add(Pages.Page({
+    onReady: check,
+    content: "<div id='root'></div>",
+  }));
+
+  function check() {
+    var emitter = wy.wrapElement(page.document.getElementById("root"));
+    var binding = emitter.emit({type: "root", obj: objRoot});
+
+    var fm = page.document.wmsyFocusManager;
+    var push = bindPush(binding.domNode, aVertical);
+
+    // 'a' should be focused by default
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
+
+    // push down and get to 'b'
+    push.more();
+    test.assertEqual(fm.focusedBinding.obj.id, "b");
+
+    // push down and get to 'c'
+    push.more();
+    test.assertEqual(fm.focusedBinding.obj.id, "c");
+
+    // push down and stay on 'c'
+    push.more();
+    test.assertEqual(fm.focusedBinding.obj.id, "c");
+
+    // push up and get to 'b'
+    push.less();
+    test.assertEqual(fm.focusedBinding.obj.id, "b");
+
+    // push up and get to 'a'
+    push.less();
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
+
+    // push up and stay on 'a'
+    push.less();
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
+
+    test.done();
+  }
+
+}
+
+exports.testVertWidgetFocus = function testVertListFocus(test) {
+  baseWidgetFocus(test, true);
+};
+
+exports.testHorizWidgetFocus = function testHorizListFocus(test) {
+  baseWidgetFocus(test, false);
+};
+
 
 
 /**
