@@ -325,20 +325,24 @@ exports.testHorizNestedListFocus = function testHorizNestedListFocus(test) {
  *  messages should hop to the next set of messages while vertical focus
  *  changes amongst the contacts.
  */
-exports.xtestTwoTierNestedFocus = function testTwoTierNestedFocus(test) {
+exports.xestTwoTierNestedFocus = function testTwoTierNestedFocus(test) {
   var wy = new wmsy.WmsyDomain({id: "f-ttnested", domain: "f-ttnested"});
 
+};
+
+exports.xestDeepDownDomains = function testDeepDownDomains(test) {
+  
 };
 
 /**
  * Two independent vertical focus domains.
  */
-exports.xtestTwoVerticalDomains = function testTwoVerticalDomains(test) {
+exports.xestTwoVerticalDomains = function testTwoVerticalDomains(test) {
   var wy = new wmsy.WmsyDomain({id: "f-twovdomains", domain: "f-twovdomains"});
 
 };
 
-exports.xtestNestedItems = function testNestedItems(test) {
+exports.xestNestedItems = function testNestedItems(test) {
   var wy = new wmsy.WmsyDomain({id: "f-nesteditem", domain: "f-nesteditem"});
 
 };
@@ -346,7 +350,7 @@ exports.xtestNestedItems = function testNestedItems(test) {
 /**
  * Test that we can imitate traditional tree-focus.
  */
-exports.xtestTreeFocus = function testTreeFocus(test) {
+exports.xestTreeFocus = function testTreeFocus(test) {
   var wy = new wmsy.WmsyDomain({id: "f-tree", domain: "f-tree"});
 
   wy.defineWidget({
@@ -395,6 +399,6 @@ exports.xtestTreeFocus = function testTreeFocus(test) {
  * - The focus state of the document remains unchanged, especially when we go
  *   back.
  */
-exports.xtestPopupFocus = function testPopupFocus(test) {
+exports.xestPopupFocus = function testPopupFocus(test) {
 
 };
