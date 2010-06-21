@@ -509,11 +509,67 @@ exports.testTwoTierNestedFocus = function testTwoTierNestedFocus(test) {
   }
 };
 
-/*
-exports.xestDeepDownDomains = function testDeepDownDomains(test) {
+/**
+ * Have the root element not have a focus domain.
+ */
+exports.testDeepDownDomains = function testDeepDownDomains(test) {
+  var wy = new wmsy.WmsyDomain({id: "f-deepdomain", domain: "f-deepdomain"});
+  wy.defineWidget({
+    name: "root",
+    constraint: {
+      type: "root",
+    },
+    structure: {
+      focusy: wy.widget({type: "focusy"}, "focusy"),
+    },
+  });
+  wy.defineWidget({
+    name: "focusy",
+    focus: wy.focus.domain.vertical("blah"),
+    constraint: {
+      type: "focusy",
+    },
+    structure: {
+      blah: wy.widget({type: "blah"}, "blah"),
+    }
+  });
+  wy.defineWidget({
+    name: "blah",
+    focus: wy.focus.item,
+    constraint: {
+      type: "blah",
+    },
+    structure: {
+      label: wy.bind("id"),
+    }
+  });
 
+  var objRoot = {
+    focusy: {
+      blah: {
+        id: "blih",
+      }
+    }
+  };
+
+  test.waitUntilDone();
+
+  var page = Pages.add(Pages.Page({
+    onReady: check,
+    content: "<div id='root'></div>",
+  }));
+
+  function check() {
+    var emitter = wy.wrapElement(page.document.getElementById("root"));
+    var binding = emitter.emit({type: "root", obj: objRoot});
+
+    var fm = page.document.wmsyFocusManager;
+
+    test.assertEqual(fm.focusedBinding.obj.id, "blih");
+
+    test.done();
+  }
 };
-*/
 
 /**
  * Two independent vertical focus domains.
