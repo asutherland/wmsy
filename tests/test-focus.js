@@ -236,7 +236,7 @@ function baseNestedListFocus(test, aVertical) {
     },
     structure: {
       items: wy.widgetList({type: "item"}, "items", {vertical: aVertical}),
-      nested: wy.widgetList({type: "nested"}, "nested"),
+      nested: wy.widgetList({type: "nested"}, "nested", {vertical: aVertical}),
     },
   });
   wy.defineWidget({
@@ -318,6 +318,71 @@ exports.testHorizNestedListFocus = function testHorizNestedListFocus(test) {
   baseNestedListFocus(test, false);
 };
 
+exports.testVertListsInHorizContainer =
+    function testVertListsInHorizContainer(test) {
+  var wy = new wmsy.WmsyDomain({id: "f-vertinhoriz", domain: "f-vertinhoriz"});
+  wy.defineWidget({
+    name: "root",
+    focus: wy.focus.domain.horizontal("i1", "i2"),
+    constraint: {
+      type: "root",
+    },
+    structure: {
+      i1: wy.vertList({type: "item"}, "items1"),
+      i2: wy.vertList({type: "item"}, "items2"),
+    },
+  });
+  wy.defineWidget({
+    name: "item",
+    focus: wy.focus.item,
+    constraint: {
+      type: "item",
+    },
+    structure: {
+      label: wy.bind("id"),
+    },
+  });
+
+  var objRoot = {
+    items1: [{id: "a1"}, {id: "a2"}],
+    items2: [{id: "b1"}, {id: "b2"}],
+  };
+
+  test.waitUntilDone();
+
+  var page = Pages.add(Pages.Page({
+    onReady: check,
+    content: "<div id='root'></div>",
+  }));
+
+  function check() {
+    var emitter = wy.wrapElement(page.document.getElementById("root"));
+    var binding = emitter.emit({type: "root", obj: objRoot});
+
+    var fm = page.document.wmsyFocusManager;
+    var push = bindPush(binding.domNode);
+
+    // initial focus on a1, vertical things should work in-list
+    test.assertEqual(fm.focusedBinding.obj.id, "a1");
+    push.down();
+    test.assertEqual(fm.focusedBinding.obj.id, "a2");
+    // but over-stepping should not do anything...
+    push.down();
+    test.assertEqual(fm.focusedBinding.obj.id, "a2");
+
+    // and then going to the right should work correctly
+    push.right();
+    test.assertEqual(fm.focusedBinding.obj.id, "b1");
+    push.up();
+    test.assertEqual(fm.focusedBinding.obj.id, "b1");
+    push.down();
+    test.assertEqual(fm.focusedBinding.obj.id, "b2");
+    push.left();
+    test.assertEqual(fm.focusedBinding.obj.id, "a1");
+
+    test.done();
+  }
+};
 
 /**
  * Vertical list of widgets where each widget has a list of messages on the
@@ -325,18 +390,135 @@ exports.testHorizNestedListFocus = function testHorizNestedListFocus(test) {
  *  messages should hop to the next set of messages while vertical focus
  *  changes amongst the contacts.
  */
-exports.xestTwoTierNestedFocus = function testTwoTierNestedFocus(test) {
+exports.testTwoTierNestedFocus = function testTwoTierNestedFocus(test) {
   var wy = new wmsy.WmsyDomain({id: "f-ttnested", domain: "f-ttnested"});
 
+  wy.defineWidget({
+    name: "root",
+    focus: wy.focus.domain.vertical("clusters"),
+    constraint: {
+      type: "root",
+    },
+    structure: {
+      clusters: wy.vertList({type: "message-cluster"}, "clusters"),
+    },
+  });
+  wy.defineWidget({
+    name: "message-cluster",
+    focus: wy.focus.container.horizontal("contact", "messages"),
+    constraint: {
+      type: "message-cluster",
+    },
+    structure: {
+      contact: wy.widget({type: "contact"}, "contact"),
+      messages: wy.vertList({type: "message"}, "messages"),
+    },
+  });
+  wy.defineWidget({
+    name: "contact",
+    focus: wy.focus.item,
+    constraint: {
+      type: "contact",
+    },
+    structure: {
+      label: wy.bind("id"),
+    },
+  });
+  wy.defineWidget({
+    name: "message",
+    focus: wy.focus.item,
+    constraint: {
+      type: "message",
+    },
+    structure: {
+      label: wy.bind("id"),
+    },
+  });
+
+  var objRoot = {
+    clusters: [
+      {
+        id: "cl1",
+        contact: {id: "a"},
+        messages: [{id: "a1"}, {id: "a2"}]
+      },
+      {
+        id: "cl2",
+        contact: {id: "b"},
+        messages: [{id: "b1"}]
+      },
+      {
+        id: "cl3",
+        contact: {id: "c"},
+        messages: []
+      },
+      {
+        id: "cl4",
+        contact: {id: "d"},
+        messages: [{id: "d1"}]
+      }
+    ]
+  };
+
+  test.waitUntilDone();
+
+  var page = Pages.add(Pages.Page({
+    onReady: check,
+    content: "<div id='root'></div>",
+  }));
+
+  function check() {
+    var emitter = wy.wrapElement(page.document.getElementById("root"));
+    var binding = emitter.emit({type: "root", obj: objRoot});
+
+    var fm = page.document.wmsyFocusManager;
+    var push = bindPush(binding.domNode);
+
+    // initial focus should be contact 'a'
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
+
+    // down gets us to contact 'b'
+    push.down();
+    test.assertEqual(fm.focusedBinding.obj.id, "b");
+
+    // move right to get into b's messages...
+    push.right();
+    test.assertEqual(fm.focusedBinding.obj.id, "b1");
+
+    // up gets us to the last of a's messages...
+    push.up();
+    test.assertEqual(fm.focusedBinding.obj.id, "a2");
+
+    // left gets us back to contact 'a'
+    push.left();
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
+
+    // going right again will put us on a1; we did not save our position.
+    push.right();
+    test.assertEqual(fm.focusedBinding.obj.id, "a1");
+
+    // let's go down and hope that we end up at d1 bypassing c entirely...
+    push.down(); // => a2
+    test.assertEqual(fm.focusedBinding.obj.id, "a2");
+    push.down(); // => b1
+    test.assertEqual(fm.focusedBinding.obj.id, "b1");
+    push.down(); // => hopefully d1
+    test.assertEqual(fm.focusedBinding.obj.id, "d1");
+
+    test.done();
+  }
 };
 
+/*
 exports.xestDeepDownDomains = function testDeepDownDomains(test) {
-  
+
 };
+*/
 
 /**
  * Two independent vertical focus domains.
  */
+/*
 exports.xestTwoVerticalDomains = function testTwoVerticalDomains(test) {
   var wy = new wmsy.WmsyDomain({id: "f-twovdomains", domain: "f-twovdomains"});
 
@@ -346,10 +528,12 @@ exports.xestNestedItems = function testNestedItems(test) {
   var wy = new wmsy.WmsyDomain({id: "f-nesteditem", domain: "f-nesteditem"});
 
 };
+*/
 
 /**
  * Test that we can imitate traditional tree-focus.
  */
+/*
 exports.xestTreeFocus = function testTreeFocus(test) {
   var wy = new wmsy.WmsyDomain({id: "f-tree", domain: "f-tree"});
 
@@ -391,6 +575,7 @@ exports.xestTreeFocus = function testTreeFocus(test) {
   };
 
 };
+*/
 
 /**
  * Trigger a popup that has its own focus domain or what not going on and make
@@ -399,6 +584,8 @@ exports.xestTreeFocus = function testTreeFocus(test) {
  * - The focus state of the document remains unchanged, especially when we go
  *   back.
  */
+/*
 exports.xestPopupFocus = function testPopupFocus(test) {
 
 };
+*/
