@@ -219,14 +219,105 @@ exports.testHorizWidgetFocus = function testHorizListFocus(test) {
 };
 
 
-
 /**
- * Vertical list of vertical lists whose items are the only focusable things.
+ * All same-orientation same-domain mixture.
  */
-exports.xtestSimpleNestedFocus = function testSimpleNestedFocus(test) {
-  var wy = new wmsy.WmsyDomain({id: "f-nested", domain: "f-nested"});
+function baseNestedListFocus(test, aVertical) {
+  var vertString = aVertical ? "vertical" : "horizontal";
 
+  var wy = new wmsy.WmsyDomain({id: "f-nestedlist-" + vertString,
+                                domain: "f-nestedlist-" + vertString});
+
+  wy.defineWidget({
+    name: "root",
+    focus: wy.focus.domain[vertString]("items", "nested"),
+    constraint: {
+      type: "root",
+    },
+    structure: {
+      items: wy.widgetList({type: "item"}, "items", {vertical: aVertical}),
+      nested: wy.widgetList({type: "nested"}, "nested"),
+    },
+  });
+  wy.defineWidget({
+    name: "nested",
+    focus: wy.focus.container[vertString]("i1", "thing", "i2"),
+    constraint: {
+      type: "nested",
+    },
+    structure: {
+      i1: wy.widgetList({type: "item"}, "items1", {vertical: aVertical}),
+      thing: wy.widget({type: "item"}, "thing"),
+      i2: wy.widgetList({type: "item"}, "items2", {vertical: aVertical}),
+    },
+  });
+  wy.defineWidget({
+    name: "item",
+    focus: wy.focus.item,
+    constraint: {
+      type: "item",
+    },
+    structure: {
+      label: wy.bind("id"),
+    },
+  });
+
+  var objRoot = {
+    items: [{id: "a"}, {id: "b"}],
+    nested: [
+      {
+        id: "kid1",
+        items1: [{id: "c"}],
+        thing: {id: "d"},
+        items2: [],
+      },
+      {
+        id: "kid2",
+        items1: [],
+        thing: {id: "e"},
+        items2: [{id: "f"}, {id: "g"}],
+      }
+    ],
+  };
+
+  test.waitUntilDone();
+
+  var page = Pages.add(Pages.Page({
+    onReady: check,
+    content: "<div id='root'></div>",
+  }));
+
+  function check() {
+    var emitter = wy.wrapElement(page.document.getElementById("root"));
+    var binding = emitter.emit({type: "root", obj: objRoot});
+
+    var fm = page.document.wmsyFocusManager;
+    var push = bindPush(binding.domNode, aVertical);
+
+    var letters = ["a", "b", "c", "d", "e", "f", "g"], i;
+    for (i = 0; i < letters.length; i++) {
+      test.assertEqual(fm.focusedBinding.obj.id, letters[i]);
+      push.more();
+    }
+    for (i = letters.length - 1; i >= 0; i--) {
+      test.assertEqual(fm.focusedBinding.obj.id, letters[i]);
+      push.less();
+    }
+    push.less();
+    test.assertEqual(fm.focusedBinding.obj.id, "a");
+
+    test.done();
+  }
+
+}
+
+exports.testVertNestedListFocus = function testVertNestedListFocus(test) {
+  baseNestedListFocus(test, true);
 };
+exports.testHorizNestedListFocus = function testHorizNestedListFocus(test) {
+  baseNestedListFocus(test, false);
+};
+
 
 /**
  * Vertical list of widgets where each widget has a list of messages on the
