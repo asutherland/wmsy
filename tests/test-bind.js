@@ -22,8 +22,8 @@ exports.testWmsyBind = function testWmsyBind(test) {
     },
     structure: {
       simpleText: wy.bind("t1"),
-      simpleSingleAttr: wy.bind(null, {attr: "a1"}),
-      simpleMultiAttr: wy.bind(null, {a: "ma1", b: "ma2"}),
+      simpleSingleAttr: wy.bind(wy.NONE, {attr: "a1"}),
+      simpleMultiAttr: wy.bind(wy.NONE, {a: "ma1", b: "ma2"}),
       simpleCombo: wy.bind("t2", {a: "ma2", c: "ma1"}),
       complexCombo: wy.bind(["c1", "c2", "t"], {
                               x: ["c1", "a"],
@@ -161,11 +161,11 @@ exports.testFromConstraintBind = function testFromConstraintBind(test) {
     },
     structure: {
       objText: wy.bind(wy.fromConstraint("argus")),
-      objAttr: wy.bind(null, {a: wy.fromConstraint("argus")}),
+      objAttr: wy.bind(wy.NONE, {a: wy.fromConstraint("argus")}),
       mapText: wy.bind(wy.fromConstraint("argus", function (argus, obj) {
                          return mappy[argus] + mappy[obj[argus]];
                        })),
-      mapAttr: wy.bind(null, {
+      mapAttr: wy.bind(wy.NONE, {
                          b: wy.fromConstraint("argus", function(argus, obj) {
                                                 return mappy[obj[argus]] -
                                                          mappy[argus];

@@ -1,4 +1,6 @@
 {
-  "name": "wmsy",
-  "description": "Widget Manifesting SYstem"
+    "id": "jid0-uZgCQ9TxXyE4ZYBtoAG4EqLZMAI", 
+    "main": "wmsy/main-driver", 
+    "name": "wmsy", 
+    "description": "Widget Manifesting SYstem"
 }
