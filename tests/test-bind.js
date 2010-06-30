@@ -3,8 +3,7 @@
  *  should.
  */
 
-var Pages = require("page-worker");
-
+var pth = require("wmsy/page-test-helper");
 var wmsy = require("wmsy/wmsy");
 
 /**
@@ -28,7 +27,13 @@ exports.testWmsyBind = function testWmsyBind(test) {
       complexCombo: wy.bind(["c1", "c2", "t"], {
                               x: ["c1", "a"],
                               y: ["c1", "c2", "b"],
-                              z: "ma1"})
+                              z: "ma1"}),
+      // For decorated flows/blocks/images we're not really concerned about
+      //  attribute binding so much as whether we accidentally clobber a text
+      //  binding into existence which kills their children.
+      decoratedFlow: wy.flow({flowKid: {}}, {attr: "a1"}),
+      decoratedBlock: wy.block({blockKid: {}}, {attr: "a1"}),
+      image: wy.bindImage("ma1", {attr: "ma2"}),
     }
   });
 
@@ -60,14 +65,9 @@ exports.testWmsyBind = function testWmsyBind(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
     var bOne = emitter.emit({type: "bindy", obj: obj1});
     var bTwo = emitter.emit({type: "bindy", obj: obj2});
 
@@ -133,6 +133,26 @@ exports.testWmsyBind = function testWmsyBind(test) {
     test.assertEqual(bTwo.complexCombo_element.getAttribute("z"), "abba2",
                      "complex ma1 obj2 correct");
 
+    // decorated flow / block
+    // (make sure they stayed elements and did not become text)
+    test.assertEqual(bOne.decoratedFlow_element.nodeType, 1, "be elements");
+    test.assertEqual(bOne.flowKid_element.nodeType, 1, "be elements");
+    test.assertEqual(bOne.decoratedBlock_element.nodeType, 1, "be elements");
+    test.assertEqual(bOne.blockKid_element.nodeType, 1, "be elements");
+    // eh, check the attributes too
+    test.assertEqual(bOne.decoratedFlow_element.getAttribute("attr"), "attr1",
+                     "decorated flow attribute");
+    test.assertEqual(bOne.decoratedBlock_element.getAttribute("attr"), "attr1",
+                     "decorated block attribute");
+
+    // image
+    test.assertEqual(bOne.image_element.nodeType, 1, "be an element");
+    test.assertEqual(bOne.image_element.tagName, "IMG", "be an img element");
+    test.assertEqual(bOne.image_element.getAttribute("src"), "abba1",
+                     "have the right src attribute value");
+    test.assertEqual(bOne.image_element.getAttribute("attr"), "gabba1",
+                     "have the right extra attribute value");
+
     test.done();
   }
 };
@@ -183,14 +203,9 @@ exports.testFromConstraintBind = function testFromConstraintBind(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
     var b1Foo = emitter.emit({type: "prized", argus: "foo", obj: obj1});
     var b1Bar = emitter.emit({type: "prized", argus: "bar", obj: obj1});
     var b2Foo = emitter.emit({type: "prized", argus: "foo", obj: obj2});
