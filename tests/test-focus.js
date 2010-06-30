@@ -2,7 +2,7 @@
  * Test focus mechanisms,
  */
 
-var Pages = require("page-worker");
+var pth = require("wmsy/page-test-helper");
 
 var wmsy = require("wmsy/wmsy");
 
@@ -73,17 +73,12 @@ function baseListFocus(test, aVertical) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
     var binding = emitter.emit({type: "root", obj: objRoot});
 
-    var fm = page.document.wmsyFocusManager;
+    var fm = doc.wmsyFocusManager;
     var push = bindPush(binding.domNode, aVertical);
 
     // 'a' should be focused by default
@@ -165,17 +160,12 @@ function baseWidgetFocus(test, aVertical) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
     var binding = emitter.emit({type: "root", obj: objRoot});
 
-    var fm = page.document.wmsyFocusManager;
+    var fm = doc.wmsyFocusManager;
     var push = bindPush(binding.domNode, aVertical);
 
     // 'a' should be focused by default
@@ -281,17 +271,12 @@ function baseNestedListFocus(test, aVertical) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
     var binding = emitter.emit({type: "root", obj: objRoot});
 
-    var fm = page.document.wmsyFocusManager;
+    var fm = doc.wmsyFocusManager;
     var push = bindPush(binding.domNode, aVertical);
 
     var letters = ["a", "b", "c", "d", "e", "f", "g"], i;
@@ -349,17 +334,12 @@ exports.testVertListsInHorizContainer =
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
     var binding = emitter.emit({type: "root", obj: objRoot});
 
-    var fm = page.document.wmsyFocusManager;
+    var fm = doc.wmsyFocusManager;
     var push = bindPush(binding.domNode);
 
     // initial focus on a1, vertical things should work in-list
@@ -461,17 +441,12 @@ exports.testTwoTierNestedFocus = function testTwoTierNestedFocus(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
     var binding = emitter.emit({type: "root", obj: objRoot});
 
-    var fm = page.document.wmsyFocusManager;
+    var fm = doc.wmsyFocusManager;
     var push = bindPush(binding.domNode);
 
     // initial focus should be contact 'a'
@@ -553,17 +528,13 @@ exports.testDeepDownDomains = function testDeepDownDomains(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  test.waitUntilDone();
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
     var binding = emitter.emit({type: "root", obj: objRoot});
 
-    var fm = page.document.wmsyFocusManager;
+    var fm = doc.wmsyFocusManager;
 
     test.assertEqual(fm.focusedBinding.obj.id, "blih");
 

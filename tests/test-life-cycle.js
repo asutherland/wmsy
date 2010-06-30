@@ -4,8 +4,7 @@
  *  primarily.)
  */
 
-var Pages = require("page-worker");
-
+var pth = require("wmsy/page-test-helper");
 var wmsy = require("wmsy/wmsy");
 
 
@@ -32,11 +31,11 @@ exports.testWidgetCycle = function testWidgetCycle(test) {
         this.obj.updateCount = 0;
       },
       update: function() {
-        this._update();
+        this.__update();
         this.obj.updateCount++;
       },
       destroy: function() {
-        this._destroy();
+        this.__destroy();
         this.obj.destroyed++;
       }
     }
@@ -56,11 +55,11 @@ exports.testWidgetCycle = function testWidgetCycle(test) {
         this.obj.updateCount = 0;
       },
       update: function() {
-        this._update();
+        this.__update();
         this.obj.updateCount++;
       },
       destroy: function() {
-        this._destroy();
+        this.__destroy();
         this.obj.destroyified++;
       }
     }
@@ -78,11 +77,11 @@ exports.testWidgetCycle = function testWidgetCycle(test) {
         this.obj.updateCount = 0;
       },
       update: function() {
-        this._update();
+        this.__update();
         this.obj.updateCount++;
       },
       destroy: function() {
-        this._destroy();
+        this.__destroy();
         this.obj.destroyeded++;
       }
     }
@@ -110,14 +109,9 @@ exports.testWidgetCycle = function testWidgetCycle(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
 
     // - bind and paranoia check
     var binding = emitter.emit({type: "root", obj: rootObj});
@@ -195,7 +189,7 @@ exports.testWidgetListCycle = function testWidgetListCycle(test) {
         this.obj.liveness++;
       },
       destroy: function() {
-        this._destroy();
+        this.__destroy();
         this.obj.liveness--;
       }
     }
@@ -213,14 +207,9 @@ exports.testWidgetListCycle = function testWidgetListCycle(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
 
     // - bind and paranoia check
     var binding = emitter.emit({type: "root", obj: rootObj});

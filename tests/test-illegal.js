@@ -5,8 +5,7 @@
  *  have to debug it.
  */
 
-var Pages = require("page-worker");
-
+var pth = require("wmsy/page-test-helper");
 var wmsy = require("wmsy/wmsy");
 
 /**
@@ -26,14 +25,9 @@ exports.testSelfRecursive = function testSelfRecursive(test) {
   });
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
 
     test.assertRaises(function asplode() {
       var binding = emitter.emit({type: "self-recursive", obj: {}});

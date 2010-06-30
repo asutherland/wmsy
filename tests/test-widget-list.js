@@ -63,7 +63,6 @@ function baseEnsureVisibleSimple(test, aVertical) {
   }
 
   test.waitUntilDone();
-
   pth.makeTestPage(test, gotPage);
 
 

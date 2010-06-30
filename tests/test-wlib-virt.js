@@ -22,7 +22,7 @@
  * - Seek...
  */
 
-var Pages = require("page-worker");
+var pth = require("wmsy/page-test-helper");
 var wmsy = require("wmsy/wmsy");
 var dth = require("wmsy/dom-test-helper");
 var wheelScrollUp = dth.wheelScrollUp, wheelScrollDown = dth.wheelScrollDown;
@@ -228,14 +228,9 @@ exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
   }
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
 
     // - check initial setup and padding (0, 0 - 200, 320)
     kidHelpers.bind(null, test); // partial bind; virtual widget not yet avail

@@ -15,13 +15,15 @@ exports.testCssBasics = function testCssBasics(test) {
 
   var domain = new WmsyDomain("test");
 
-  for (var i = 0; i < cssMapifications; i++) {
+  for (var i = 0; i < cssMapifications.length; i++) {
     var testObj = cssMapifications[i][0];
     var expected = cssMapifications[i][1];
 
     var blobs = domain._styleChew(testObj, cssPrefix);
     test.assertEqual(blobs.length, 1);
-    var blob = blobs[0].replace("\n", "", "g").replace(/ +/g, " ");
+    var blob = blobs[0].replace("\n", "", "g")
+                       .replace(/ +/g, " ")
+                       .replace("{ ", "{", "g");
     test.assertEqual(expected, blob);
   }
 };

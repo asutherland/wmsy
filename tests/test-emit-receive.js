@@ -4,10 +4,8 @@
  *  we also want to make sure that dynamic changes are also handled.
  */
 
-var Pages = require("page-worker");
-
+var pth = require("wmsy/page-test-helper");
 var wmsy = require("wmsy/wmsy");
-
 
 /**
  * A one-to-one emit/receive ancestor/descendent relationship.
@@ -80,14 +78,9 @@ exports.testOneToOneEmitReceive = function testOneToOneEmitReceive(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
 
     var top = emitter.emit({type: "top", obj: obj});
     var bottom = top.middle_element.binding.bottom_element.binding;
@@ -193,14 +186,9 @@ exports.testOneToOneRelay = function testOneToOneRelay(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
-
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  pth.makeTestPage(test, gotPage);
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
 
     var root = emitter.emit({type: "root", obj: obj});
     var left = root.left_element.binding;
@@ -317,11 +305,7 @@ exports.testComplexEmitReceive = function testComplexEmitReceive(test) {
   };
 
   test.waitUntilDone();
-
-  var page = Pages.add(Pages.Page({
-    onReady: check,
-    content: "<div id='root'></div>",
-  }));
+  pth.makeTestPage(test, gotPage);
 
   function assertListsEq(a, b, expl) {
     a.sort();
@@ -335,8 +319,8 @@ exports.testComplexEmitReceive = function testComplexEmitReceive(test) {
     bangoHeard = [];
   }
 
-  function check() {
-    var emitter = wy.wrapElement(page.document.getElementById("root"));
+  function gotPage(doc, win) {
+    var emitter = wy.wrapElement(doc.getElementById("root"));
 
     var top = emitter.emit({type: "top", obj: objRoot});
     var bingo = top.bingo_element.binding;
