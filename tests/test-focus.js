@@ -577,6 +577,16 @@ exports.testDeepDownDomains = function testDeepDownDomains(test) {
 };
 
 /**
+ * Handle the case where there is initially nothing focusable, then we have
+ *  something focusable but it gets destroyed, then we have something focusable.
+ */
+
+/**
+ * Test that killing off the active focus domain correctly transfers the active
+ *  focus domain status elsewhere.
+ */
+
+/**
  * Two independent vertical focus domains.
  */
 /*
@@ -634,19 +644,6 @@ exports.xestTreeFocus = function testTreeFocus(test) {
       }
     ],
   };
-
-};
-*/
-
-/**
- * Trigger a popup that has its own focus domain or what not going on and make
- *  sure that:
- * - Moving focus around inside the popup works
- * - The focus state of the document remains unchanged, especially when we go
- *   back.
- */
-/*
-exports.xestPopupFocus = function testPopupFocus(test) {
 
 };
 */
