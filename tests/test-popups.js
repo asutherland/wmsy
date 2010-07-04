@@ -33,33 +33,45 @@
 ****************************** END LICENSE BLOCK ******************************/
 
 /**
- * Comment content parsing.
+ * General operation and focus checking for popups.
+ **/
+
+var pth = require("wmsy/page-test-helper");
+var wmsy = require("wmsy/wmsy");
+
+/**
+ * - Popups actually pop up.
+ * - They pop up at the requested locations.
+ * - Calling done makes them go away.
+ * - Click away logic works to make them go away.
  */
+exports.testPopupGeneral = function testPopupGeneral(test) {
+  var wy = new wmsy.WmsyDomain({id: "pu-general", domain: "pu-general"});
+  // the popup
+  wy.defineWidget({
+    name: "hopon",
+    constraint: {
+      type: "pop",
+      clickAway: true,
 
-var connotent = require("gloda/connotent");
+    }
+  });
 
-var ct = connotent.domain("bug-comment");
+  // the root widget that pops up the popup
+  wy.defineWidget({
+    popups: {
 
-ct.defineProlog(/Created an attachment \(id=(\d+)\) \[details\]/,
-  function(ctx, match) {
-    ctx.
-    ctx.comment.attachment = parseInt(match.group(1));
-  }
-);
+    }
+  });
+};
 
-ct.defineProlog(/\(From update of attachment (\d+) \[details\]\)/,
-  function(ctx, match) {
-    ctx.comment.attachment = parseInt(match.group(1));
-  }
-);
+/**
+ * Check that:
+ * - We push a new focus stack frame thing.
+ *   - Tab should not let us escape to another focus domain.
+ *   - Focus should not change because of things that happened in the popup.
+ * - Escape makes them go away.
+ */
+exports.testPopupFocus = function testPopupFocus(test) {
 
-ct.defineQuoteFormat(/\(In reply to comment #(\d+)\)/, "> ",
-  function(ctx, match) {
-  }
-);
-
-ct.defineReference(/bug #?(\d+)(?: comment #?(\d+))/,
-  function (ctx, match) {
-
-  }
-);
+};
