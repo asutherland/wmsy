@@ -1,0 +1,6 @@
+The debug UI exposes the registered wmsy widgets and their relations in the
+abstract as well as the emergent configurations when used.  The goal is to
+complement existing lower level debugging tools like firebug.  We should
+only duplicate functionality (for example DOM inspector-like functionality)
+if we can provide some serious value-add and creating a firebug extension
+would be harder to use for developers or an order of magnitude more code.
