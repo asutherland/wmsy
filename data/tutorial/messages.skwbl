@@ -1,0 +1,26 @@
+
+Whenever 
+
+@sampleData["peeps"
+@js{
+  function Identity(aName, aEmail, aInAddressBook) {
+    this.name = aName;
+    this.email = aEmail;
+    this.inAddressBook = aInAddressBook;
+  }
+
+  var alice = new Identity("Alice", "alice@example.com", true);
+  var bob = new Identity("Bob", "bob@example.com", false);
+  var chuck = new Identity("Charles Carmichael", "chuck@example.com", false);
+}]
+
+@collapsed{@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
+}]}
+
+
+@example["" "peeps"
+]
