@@ -1,0 +1,88 @@
+#lang narscribblus/interactive
+
+@collapsed{@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
+}]}
+
+@exampleCode["lights"
+@js{
+  wy.defineWidget({
+    name: "toggle-button",
+    constraint: {type: "item", obj: {kind: "toggle"}},
+    emit: ["toggleLight"],
+    structure: "Toggle!",
+    events: {
+      root: { click: function() {
+          this.emit_toggleLight();
+      }}
+    }
+  });
+
+  wy.defineWidget({
+    name: "light-display",
+    constraint: {type: "item", obj: {kind: "light"}},
+    structure: {},
+    impl: {
+      preInit: function() {
+        this.lightOn = false;
+      }
+    },
+    receive: {
+      toggleLight: function() {
+        this.lightOn = !this.lightOn;
+        this.domNode.setAttribute("light", this.lightOn ? "on" : "off");
+      }
+    },
+    style: {
+      root: {
+        _: [
+          "width: 40px;",
+          "height: 40px;",
+          "border-radius: 20px;",
+          "background-color: black;",
+        ],
+        '[light="on"]': [
+          "background-color: yellow;",
+        ],
+      }
+    }
+  });
+
+  wy.defineWidget({
+    name: "container",
+    constraint: {type: "container"},
+    relay: ["toggleLight"],
+    structure: {
+      items: wy.vertList({type: "item"}, "items"),
+      addLight: "Add a light!",
+      addToggler: "Add a toggler!",
+      removeAll: "Remove them all!"
+    },
+    events: {
+      addLight: {click: function() {
+        var light = {kind: "light"};
+        this.obj.items.push(light);
+        this.items_itemsAdded([light]);
+      }},
+      addToggler: {click: function() {
+        var toggler = {kind: "toggler"};
+        this.obj.items.push(toggler);
+        this.items_itemsAdded([toggler]);
+      }},
+      removeAll: {click: function() {
+        this.items_itemsRemoved(this.obj.items);
+        this.obj.items = [];
+      }},
+    }
+  });
+}]
+@exampleShow["wmsy-prolog" "lights"
+@js{
+  var binder = wy.wrapElement(exampleDomNode);
+  var containerObj = {items: [{kind: "light"}, {kind: "toggle"}}};
+  binder.bind({type: "container", obj: containerObj});
+}
+]
