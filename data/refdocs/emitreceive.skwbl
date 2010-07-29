@@ -82,7 +82,7 @@
 @exampleShow["wmsy-prolog" "lights"
 @js{
   var binder = wy.wrapElement(exampleDomNode);
-  var containerObj = {items: [{kind: "light"}, {kind: "toggle"}}};
+  var containerObj = {items: [{kind: "light"}, {kind: "toggle"}]};
   binder.bind({type: "container", obj: containerObj});
 }
 ]
