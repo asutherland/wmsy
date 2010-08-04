@@ -1,6 +1,82 @@
 #lang narscribblus/interactive
 
-@collapsed{@boilerplate["wmsy-prolog"
+@section{Basics}
+
+The wmsy emit/receive/relay mechanism provides a means for widgets to
+communicate with each other within the widget hierarchy using simple
+messaging conventions.
+
+A widget that emits signals must list the signal names as strings in its widget 
+definition @xref["WidgetDef.emit"]{emit} field.
+
+@jselided{wy.defineWidget({... emit: ["a", "b", "c"] ...});}
+
+This results in emit_a, emit_b, and emit_c methods being added to the binding's
+prototype.  As far as wmsy is concerned, there is no need to define what
+arguments these functions take; all of their arguments will be propagated to
+the receive implementation using @xref{Function.apply}.
+
+A widget that receives signals adds a @xref["WidgetDef.receive"]{receive} object
+to its widget definition.  The keys in the object are the names of signals to
+receive and the values are the functions to use to handle those signals.  The
+functions are always invoked with a @sjskeyword{this} of the binding they are
+being invoked on.
+
+@jselided{
+  wy.defineWidget({
+    ...
+    receive: {
+      a: function() {
+        console.log("received an 'a' signal on binding for object", this.obj);
+      },
+      b: function() {},
+      c: function() {},
+    }
+    ...
+  });
+}
+
+Emitters and receivers find each other (and are contained within a subtree of
+the UI) through use of @xref["WidgetDef.relay"]{relay} definitions.
+
+@jselided{wy.defineWidget({... relay: ["a", "b", "c"] ...});}
+
+When a binding is added to a document it walks up its parents trying to
+establish links for all of the signals it emits and receives.  This can be
+satisfied either by finding the matching type (receive for emit, emit for
+receive) or by finding a relay.
+
+@section{Simple Example: Lights}
+
+Let us imagine a world where lamps are remote-controlled.  Because of
+cost-cutting in our example world, the remote controls for lamps only tell the
+lamps to toggle their state rather than to explicitly turn on or off.  The
+remote controls are also only strong enough to affect the current room.
+
+Widget-wise, we can model things like so:
+
+@itemize[
+  @item{lamp-remote: Sends a message to tell all the lamps to toggle their
+        state.}
+  @item{lamp: Is either on or off and toggles its state when told to by a
+        remote.}
+  @item{room: Holds lamp-remotes and lamps.  As many as you like; thanks to all
+        the cost-cutting on lamps and lamp remotes the people of the world
+        were able to afford infinitely large rooms.}
+]
+
+Here's what the output looks like:
+
+@exampleShow["wmsy-prolog" "lights"
+@js{
+  var binder = wy.wrapElement(exampleDomNode);
+  var containerObj = {items: [{kind: "lamp"}, {kind: "remote"}]};
+  binder.bind({type: "room", obj: containerObj});
+}]
+
+And here's the source code that makes it happen:
+
+@collapsed["Boilerplate"]{@boilerplate["wmsy-prolog"
 @js{
   var wmsy = require("wmsy/wmsy");
   var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
@@ -10,8 +86,8 @@
 @exampleCode["lights"
 @js{
   wy.defineWidget({
-    name: "toggle-button",
-    constraint: {type: "item", obj: {kind: "toggle"}},
+    name: "lamp-remote",
+    constraint: {type: "item", obj: {kind: "remote"}},
     emit: ["toggleLight"],
     structure: "Toggle!",
     events: {
@@ -22,8 +98,8 @@
   });
 
   wy.defineWidget({
-    name: "light-display",
-    constraint: {type: "item", obj: {kind: "light"}},
+    name: "lamp",
+    constraint: {type: "item", obj: {kind: "lamp"}},
     structure: {},
     impl: {
       preInit: function() {
@@ -43,6 +119,7 @@
           "height: 40px;",
           "border-radius: 20px;",
           "background-color: black;",
+          "display: inline-block;",
         ],
         '[light="on"]': [
           "background-color: yellow;",
@@ -52,23 +129,23 @@
   });
 
   wy.defineWidget({
-    name: "container",
-    constraint: {type: "container"},
+    name: "room",
+    constraint: {type: "room"},
     relay: ["toggleLight"],
     structure: {
       items: wy.vertList({type: "item"}, "items"),
-      addLight: "Add a light!",
-      addToggler: "Add a toggler!",
+      addLamp: "Add a lamp!",
+      addRemote: "Add a remote!",
       removeAll: "Remove them all!"
     },
     events: {
-      addLight: {click: function() {
-        var light = {kind: "light"};
+      addLamp: {click: function() {
+        var light = {kind: "lamp"};
         this.obj.items.push(light);
         this.items_addAll([light]);
       }},
-      addToggler: {click: function() {
-        var toggler = {kind: "toggle"};
+      addRemote: {click: function() {
+        var toggler = {kind: "remote"};
         this.obj.items.push(toggler);
         this.items_addAll([toggler]);
       }},
@@ -79,10 +156,4 @@
     }
   });
 }]
-@exampleShow["wmsy-prolog" "lights"
-@js{
-  var binder = wy.wrapElement(exampleDomNode);
-  var containerObj = {items: [{kind: "light"}, {kind: "toggle"}]};
-  binder.bind({type: "container", obj: containerObj});
-}
-]
+
