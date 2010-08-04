@@ -65,15 +65,15 @@
       addLight: {click: function() {
         var light = {kind: "light"};
         this.obj.items.push(light);
-        this.items_itemsAdded([light]);
+        this.items_addAll([light]);
       }},
       addToggler: {click: function() {
-        var toggler = {kind: "toggler"};
+        var toggler = {kind: "toggle"};
         this.obj.items.push(toggler);
-        this.items_itemsAdded([toggler]);
+        this.items_addAll([toggler]);
       }},
       removeAll: {click: function() {
-        this.items_itemsRemoved(this.obj.items);
+        this.items_removeAll(this.obj.items);
         this.obj.items = [];
       }},
     }
