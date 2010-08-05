@@ -89,9 +89,11 @@ And here's the source code that makes it happen:
     name: "lamp-remote",
     constraint: {type: "item", obj: {kind: "remote"}},
     emit: ["toggleLight"],
-    structure: "Toggle!",
+    structure: {
+      toggle: wy.button("Toggle!")
+    },
     events: {
-      root: { click: function() {
+      toggle: { click: function() {
         this.emit_toggleLight();
       }}
     }
@@ -134,9 +136,11 @@ And here's the source code that makes it happen:
     relay: ["toggleLight"],
     structure: {
       items: wy.widgetFlow({type: "item"}, "items"),
-      addLamp: "Add a lamp!",
-      addRemote: "Add a remote!",
-      removeAll: "Remove them all!"
+      buttons: {
+        addLamp: wy.button("Add a lamp!"),
+        addRemote: wy.button("Add a remote!"),
+        removeAll: wy.button("Remove them all!"),
+      }
     },
     events: {
       addLamp: {click: function() {
