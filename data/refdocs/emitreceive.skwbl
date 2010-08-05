@@ -92,7 +92,7 @@ And here's the source code that makes it happen:
     structure: "Toggle!",
     events: {
       root: { click: function() {
-          this.emit_toggleLight();
+        this.emit_toggleLight();
       }}
     }
   });
@@ -133,7 +133,7 @@ And here's the source code that makes it happen:
     constraint: {type: "room"},
     relay: ["toggleLight"],
     structure: {
-      items: wy.vertList({type: "item"}, "items"),
+      items: wy.widgetFlow({type: "item"}, "items"),
       addLamp: "Add a lamp!",
       addRemote: "Add a remote!",
       removeAll: "Remove them all!"
