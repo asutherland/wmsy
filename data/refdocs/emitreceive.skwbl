@@ -146,16 +146,16 @@ And here's the source code that makes it happen:
       addLamp: {click: function() {
         var light = {kind: "lamp"};
         this.obj.items.push(light);
-        this.items_addAll([light]);
+        this.items_splicey(-1, 0, [light]);
       }},
       addRemote: {click: function() {
         var toggler = {kind: "remote"};
         this.obj.items.push(toggler);
-        this.items_addAll([toggler]);
+        this.items_splicey(-1, 0, [toggler]);
       }},
       removeAll: {click: function() {
-        this.items_removeAll(this.obj.items);
         this.obj.items = [];
+        this.update();
       }},
     }
   });
