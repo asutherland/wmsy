@@ -56,7 +56,7 @@ function baseEnsureVisibleSimple(test, aVertical) {
     },
     structure: {
       items: wy.widgetList({type: "item"}, "items",
-                           {id: wy.SELF, vertical: aVertical}),
+                           {vertical: aVertical}),
     },
     style: {
       items: [
@@ -238,7 +238,7 @@ exports.testEnsureVisibleComplex = function testEnsureVisibleComplex(test) {
       type: "group",
     },
     structure: {
-      things: wy.horizList({type: "item"}, "vals", {id: wy.SELF}),
+      things: wy.horizList({type: "item"}, "vals"),
     },
     style: {
       root: [
@@ -267,6 +267,9 @@ exports.testEnsureVisibleComplex = function testEnsureVisibleComplex(test) {
 
 
   var GROUP_NAMES = ["fruits", "animals"];
+  // The id attributes were from we required id mappings for rich objects
+  //  in lists. I think they may be useful again in the future, leaving in
+  //  for now.
   var rootObj = {
     inners: [
       {

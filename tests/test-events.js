@@ -295,10 +295,9 @@ exports.testClickOnWidgetList = function testClickOnWidgetList(test) {
       type: "root-widget",
     },
     structure: {
-      subA: wy.widgetList({type: "sub-widget"}, "kids", {id: wy.SELF}),
-      subB: wy.widgetList({type: "sub-widget-event-eater"}, "kids",
-                          {id: wy.SELF}),
-      subC: wy.widgetList({type: "sub-widget"}, "kids", {id: wy.SELF}),
+      subA: wy.widgetList({type: "sub-widget"}, "kids"),
+      subB: wy.widgetList({type: "sub-widget-event-eater"}, "kids"),
+      subC: wy.widgetList({type: "sub-widget"}, "kids"),
     },
     events: {
       subA: {
