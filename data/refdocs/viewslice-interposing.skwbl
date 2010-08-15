@@ -1,3 +1,5 @@
+#lang narscribblus/interactive
+
 @collapsed["Boilerplate"]{@boilerplate["wmsy-prolog"
 @js{
   var wmsy = require("wmsy/wmsy");
@@ -5,42 +7,10 @@
                                 clickToFocus: true});
 }]}
 
-@exampleCode["addrbook-widgets"
+@exampleShow["wmsy-prolog" "addrbook-widgets" "addrbook-data"
 @js{
-  wy.defineWidget({
-    name: "giant-letter",
-    structure: wy.bind("letter"),
-    style: {
-      root: [
-        "font-size: 200%;",
-      ],
-    },
-  });
-
-  var letterInterposer = wy.defineInterposingViewSlice({
-    classifier: function(person, context) {
-      return person.name[0].toLocaleUpperCase();
-    },
-    maker: function(pre, post, context) {
-      return {
-        letter: post.name[0].toLocaleUpperCase();
-      };
-    },
-  });
-
-
-  wy.defineWidget({
-    name: "addressbook",
-    constraint: {
-      type: "addressbook",
-    },
-    structure: {
-      peeps: wy.vertList(
-               letterInterposer({type: "interposed"},
-                                {type: "person"},
-                                "peeps")),
-    }
-  });
+  var binder = wy.wrapElement(exampleDomNode);
+  binder.bind({type: "addressbook", obj: addrbook});
 }]
 
 @exampleCode["addrbook-data"
@@ -56,3 +26,54 @@
     peeps: people,
   };
 }]
+
+@exampleCode["addrbook-widgets"
+@js{
+  wy.defineWidget({
+    name: "giant-letter",
+    constraint: {
+      type: "interposed",
+    },
+    structure: wy.bind("letter"),
+    style: {
+      root: [
+        "font-size: 200%;",
+      ],
+    },
+  });
+
+  var letterInterposer = wy.defineInterposingViewSlice({
+    classifier: function(person) {
+      return person.name[0].toLocaleUpperCase();
+    },
+    maker: function(pre, post) {
+      return {
+        letter: post.name[0].toLocaleUpperCase(),
+      };
+    },
+  });
+
+  wy.defineWidget({
+    name: "person",
+    constraint: {
+      type: "person",
+    },
+    structure: {
+      name: wy.bind("name"),
+    },
+  });
+
+  wy.defineWidget({
+    name: "addressbook",
+    constraint: {
+      type: "addressbook",
+    },
+    structure: {
+      peeps: wy.vertList(
+               letterInterposer({type: "interposed"},
+                                {type: "person"}),
+               "peeps"),
+    }
+  });
+}]
+
