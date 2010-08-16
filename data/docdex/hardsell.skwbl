@@ -1,0 +1,43 @@
+#lang narscribblus/manual
+
+
+
+@section{What's wrong with XBL?}
+
+@XXX{This is from an email to tb-planning and has not been fixed up.}
+
+However, XBL1 as it exists in mozilla has several issues, so wmsy tries to
+improve on that in the following ways:
+
+- Widget specialization without requiring all object state to be reflected into
+  the DOM.  XBL specifies bindings using CSS.  The problem is that our data does
+  not consist of documents expressed in HTML/XML; they are JS objects and we
+  reflect the minimum amount of data into the DOM.  Wmsy's widget specification
+  is based on what amounts to very constrained multiple dispatch where the
+  entire JS object being bound is fair game.
+
+- Encourage widget factoring into small, understandable bindings aligned with
+  the conceptual tasks of the widget.  For example, the 'star' on a message
+  should be its own simple widget.  An extension can then easily replace the
+  boolean star with a 5-star widget without having to sub-class or monkey-patch
+  a monolithic message binding widget (and potentially fight other extensions
+  trying to do orthogonal things).  I believe the wacky XBL life-cycle stuff to
+  be a major reason for the tendency towards large bindings.
+
+- Avoid requiring a lot of extra legwork (or forethought) to make extensibility
+  practical.  For example, since overlays don't work on HTML pages, it can be
+  hard to even get into the same context as the faceted search UI let alone
+  extend its giant XBL bindings.
+
+- Provide additional debugging/understanding support.  Wmsy widgets are defined
+  with a (hopefully useful) short description of what they do.  Wmsy widgets are
+  organized into domains.  We are able to construct a graph of how the widgets
+  relate (thanks to the multiple dispatch/constraint system).  Hopefully this
+  will make it easy to write a 'wmsy explorer' to understand how things
+  currently work and how you can extend/modify them or debug problems you are
+  having with your extension.
+
+Wmsy also hopes to greatly reduce boilerplate in terms of DOM node retrieval,
+localization, and focus handling.  Localization remains on the to-do list and
+focus handling is temporarily on the back-burner, but they are important 1.0
+features.
