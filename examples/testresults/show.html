@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Test Results Display</title>
+    <script type="text/javascript">
+      var console;
+      if (!console)
+        console = {
+          log: function() {},
+          error: function() {},
+          info: function() {},
+          warn: function() {},
+      };
+      function dump(aMsgWithNewline) {
+        console.log(aMsgWithNewline.replace("\n", "", "g"));
+      }
+    </script>
+    <script type="text/javascript" src="../../../teleport/lib/teleport.js"></script>
+  </head>
+<body id="body">
+  <script>
+    require.Sandbox({
+      global: window,
+      catalog: {
+        "wmsy": { path: "../../" },
+      },
+    }).main("wmsy/examples/testresults-show");
+  </script>
+</body>
+</html>
