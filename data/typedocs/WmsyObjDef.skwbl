@@ -1,0 +1,38 @@
+
+@typedef["WmsyObjDef" @dict[
+  @key["name" #:required String]{}
+
+  @key["doc" #:optional String]{}
+
+  @key["constraint" #:required WmsyConstraintDef]{}
+
+  @group["Form"
+    @key["structure" #:required WmsyStructureDef]{}
+
+    @key["style" #:optional WmsyStyleDef]{}
+  ]
+
+  @group["Function"
+    @key["constructor" #:optional Function]{}
+
+    @key["impl" #:optional @dictof[String Function]]{}
+  ]
+
+  @group["Behaviour"
+
+    @key["events" #:optional @dictof[String @dictof[String Function]]]{}
+    @key["focus" #:optional @leafof[WmsyExportDomain.focus]]{}
+  ]
+
+  @group["Widget Communication"
+    @key["emit" #:optional @listof[String]]{}
+    @key["receive" #:optional @dictof[String Function]]{}
+    @key["relay" #:optional @listof[String]]{}
+  ]
+
+  @key["provideContext" #:optional]
+
+  @key["popups" #:optional]{
+    
+  }
+]]
