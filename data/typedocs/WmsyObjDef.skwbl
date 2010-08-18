@@ -1,13 +1,29 @@
+#lang narscribblus/interactive
 
 @typedef["WmsyObjDef" @dict[
-  @key["name" #:required String]{}
+  @key["name" #:required String]{
+    A locally unique name for the widget.  Convention is to use single dashes
+    to separate words, but it's really up to you.
 
-  @key["doc" #:optional String]{}
+    Names need to be unique within each domain's id space.  When you define
+    a wmsy domain you do something like this:
+    @js{
+      var wmsy = require("wmsy/wmsy");
+      var wy = new wmsy.WmsyDomain({id: "a", domain: "b"});
+    }
+    So your name needs to be unique for the given @sjs{id} and @sjs{domain}.
+  }
+
+  @key["doc" #:optional String]{
+    A brief description of what your widget does for use by wmsy-aware tools.
+    If your @lxref{name} already says it all, there's no need to provide this.
+    Admittedly, at the current time no part of the framework surface this.
+  }
 
   @key["constraint" #:required WmsyConstraintDef]{}
 
   @group["Form"
-    @key["structure" #:required WmsyStructureDef]{}
+    @key["structure" #:required WmsyStructureDefIsh]{}
 
     @key["style" #:optional WmsyStyleDef]{}
   ]
@@ -15,24 +31,69 @@
   @group["Function"
     @key["constructor" #:optional Function]{}
 
-    @key["impl" #:optional @dictof[String Function]]{}
+    @key["impl" #:optional @dictof[
+      @key["attribute name" String]
+      @key["function" Function]
+    ]]{
+      All of the functions you put in here will end up exposed on your binding.
+      There are a few well-known functions you may want to implement in here:
+      @itemize[
+        @item{preInit}
+        @item{postInit}
+      ]
+      And a few already-implemented methods you may want to clobber:
+      @itemize[
+        @item{update}
+      ]
+    }
   ]
 
   @group["Behaviour"
 
-    @key["events" #:optional @dictof[String @dictof[String Function]]]{}
+    @key["events" #:optional @dictof[
+      @key["event name" String]{
+      }
+      @value["handler function" Function]{
+      }
+    ]]
+
     @key["focus" #:optional @leafof[WmsyExportDomain.focus]]{}
   ]
 
   @group["Widget Communication"
-    @key["emit" #:optional @listof[String]]{}
-    @key["receive" #:optional @dictof[String Function]]{}
-    @key["relay" #:optional @listof[String]]{}
+    @desc{
+    }
+
+    @key["emit" #:optional @listof["signal name" String]{
+    }]{
+    }
+
+    @key["receive" #:optional @dictof[
+      @key["signal name" String]{
+      }
+      @value["handler function" Function]{
+      }
+    ]]{
+    }
+
+    @key["relay" #:optional @listof["signal name" String]{
+    }]{
+    }
   ]
 
   @key["provideContext" #:optional]
 
-  @key["popups" #:optional]{
+  @key["popups" #:optional @dictof[String WmsyConstraintDef]]{
     
   }
 ]]
+
+@typedef[WmsyStructureDefIsh @oneof[WmsyStructureDef WmsyObjDecorator]]
+
+@typedef[WmsyStyleDef @dictof[#:key String
+                                #:value @oneof[WmsyStyleDef WmsyStyleSubDef]]{
+  
+}
+
+@typedef[WmsyStyleSubDef @dictof[#:key String
+                                   #:value @oneof[String @listof[String]]]]

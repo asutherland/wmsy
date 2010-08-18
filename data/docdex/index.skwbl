@@ -23,9 +23,11 @@ Introductions to how to use wmsy for specific goals.
         support.}
   @item{@doclink["tutorial/ext-basics.skwbl"]{Extension Basics}: How to replace
         or specialize existing widgets.}
+  @item{@doclink["tutorial/styling-basics.skwbl"]{Styling/Theming}: How to
+        change the look of things without defining new widgets.}
 ]
 
-@subsection{
+@subsection{}
 
 
 @section{User Reference}
