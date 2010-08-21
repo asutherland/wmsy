@@ -11,7 +11,7 @@
       var wmsy = require("wmsy/wmsy");
       var wy = new wmsy.WmsyDomain({id: "a", domain: "b"});
     }
-    So your name needs to be unique for the given @sjs{id} and @sjs{domain}.
+    So your name needs to be unique for the given id and domain.
   }
 
   @key["doc" #:optional String]{
@@ -33,7 +33,7 @@
 
     @key["impl" #:optional @dictof[
       @key["attribute name" String]
-      @key["function" Function]
+      @value["function" Function]
     ]]{
       All of the functions you put in here will end up exposed on your binding.
       There are a few well-known functions you may want to implement in here:
@@ -57,11 +57,20 @@
       }
     ]]
 
-    @key["focus" #:optional @leafof[WmsyExportDomain.focus]]{}
+    @key["focus" #:optional @oneof[
+          WmsyExportDomain.focus.domain.horizontal
+          WmsyExportDomain.focus.domain.vertical
+          WmsyExportDomain.focus.container.horizontal
+          WmsyExportDomain.focus.container.vertical
+          WmsyExportDomain.focus.nestedItem.horizontal
+          WmsyExportDomain.focus.nestedItem.vertical
+          WmsyExportDomain.focus.item
+        ]]{}
   ]
 
   @group["Widget Communication"
     @desc{
+      Mechanisms to support loosely coupled widget communication; see 
     }
 
     @key["emit" #:optional @listof["signal name" String]{
@@ -92,8 +101,11 @@
 
 @typedef[WmsyStyleDef @dictof[#:key String
                                 #:value @oneof[WmsyStyleDef WmsyStyleSubDef]]{
-  
-}
+  }
+]
 
-@typedef[WmsyStyleSubDef @dictof[#:key String
-                                   #:value @oneof[String @listof[String]]]]
+@typedef[WmsyStyleSubDef @dictof[
+  #:key String
+  #:value @oneof[
+    String
+    @listof["css line" String]]]]
