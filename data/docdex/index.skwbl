@@ -48,6 +48,11 @@ Detailed discussions and examples of specific pieces of functionality.
   ]}
 ]
 
+@section{API Reference}
+
+@itemize[
+  @item{@doclink["docdex/pubtypes.swkbl"]{Public Data Types}}
+]
 
 @section{Implementation}
 

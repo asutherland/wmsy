@@ -1,6 +1,6 @@
 #lang narscribblus/interactive
 
-@typedef["WmsyObjDef" @dict[
+@typedef["WidgetDef" @dict[
   @key["name" #:required String]{
     A locally unique name for the widget.  Convention is to use single dashes
     to separate words, but it's really up to you.

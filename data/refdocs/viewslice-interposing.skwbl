@@ -1,18 +1,14 @@
 #lang narscribblus/interactive
 
-@collapsed["Boilerplate"]{@boilerplate["wmsy-prolog"
-@js{
-  var wmsy = require("wmsy/wmsy");
-  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
-                                clickToFocus: true});
-}]}
+@title{Interposing View Slices}
 
-@exampleShow["wmsy-prolog" "addrbook-widgets" "addrbook-data"
-@js{
-  var binder = wy.wrapElement(exampleDomNode);
-  binder.bind({type: "addressbook", obj: addrbook});
-}]
+Interposing view slices decorate another view slice by inserting new, synthetic
+objects based on the output of a helper routine.
 
+For example, let us suppose you are writing an address book application and would
+like to insert giant letters before each section of the alphabet.
+
+@collapsey["Addressbook Data"]{
 @exampleCode["addrbook-data"
 @js{
   var people = [
@@ -25,8 +21,21 @@
   var addrbook = {
     peeps: people,
   };
-}]
+}]}
 
+@exampleShow["wmsy-prolog" "addrbook-widgets" "addrbook-data"
+             "addrbook-insertion"]{
+  Addressbook Example Output
+}
+
+@collapsed["Wmsy Boilerplate"]{@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
+}]}
+
+@collapsed["Addressbook Widgets"]{
 @exampleCode["addrbook-widgets"
 @js{
   wy.defineWidget({
@@ -75,5 +84,12 @@
                "peeps"),
     }
   });
-}]
+}]}
+
+@collapsed["Addressbook Example Insertion"]{
+@exampleCode["addrbook-insertion"
+@js{
+  var binder = wy.wrapElement(exampleDomNode);
+  binder.bind({type: "addressbook", obj: addrbook});
+}]}
 
