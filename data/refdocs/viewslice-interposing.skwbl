@@ -3,7 +3,7 @@
 @title{Interposing View Slices}
 
 Interposing view slices decorate another view slice by inserting new, synthetic
-objects based on the output of a helper routine.
+objects based on the output of two helper routines: a classifier, and a maker.
 
 For example, let us suppose you are writing an address book application and would
 like to insert giant letters before each section of the alphabet.
@@ -23,10 +23,38 @@ like to insert giant letters before each section of the alphabet.
   };
 }]}
 
-@exampleShow["wmsy-prolog" "addrbook-widgets" "addrbook-data"
-             "addrbook-insertion"]{
-  Addressbook Example Output
-}
+@exampleShow["addrbook-example"
+  "wmsy-prolog" "addrbook-interposer" "addrbook-widgets" "addrbook-data"
+  "addrbook-insertion"
+]{Addressbook Example Output}
+
+There are obviously a number of ways you could accomplish this, some requiring
+more custom code than others and some being more efficient than others in terms
+of how much of the total data-set you need to load into memory.  The interposing
+view slice tries to be good on both counts.
+
+You provide a classifier function and a maker function.  The classifier function
+is invoked for every object that is to be exposed to the consumer of the view
+slice.  Whenever the value returned by the classifier differs between two
+consecutive objectives in the view slice, we invoke the maker function.  We
+may optionally also invoke the maker for the first element in the view slice
+(default: yes) and the last element (default: no).
+
+@exampleCode["addrbook-interposer"
+@js{
+  var letterInterposer = wy.defineInterposingViewSlice({
+    classifier: traceWrap("green", function classifier(person) {
+      return person.name[0].toLocaleUpperCase();
+    }),
+    maker: traceWrap("blue", function maker(pre, post) {
+      return {
+        letter: post.name[0].toLocaleUpperCase(),
+      };
+    }),
+  });
+}]
+
+@traceOutput["addrbook-example"]{Addressbook Example Trace}
 
 @collapsed["Wmsy Boilerplate"]{@boilerplate["wmsy-prolog"
 @js{
@@ -48,17 +76,6 @@ like to insert giant letters before each section of the alphabet.
       root: [
         "font-size: 200%;",
       ],
-    },
-  });
-
-  var letterInterposer = wy.defineInterposingViewSlice({
-    classifier: function(person) {
-      return person.name[0].toLocaleUpperCase();
-    },
-    maker: function(pre, post) {
-      return {
-        letter: post.name[0].toLocaleUpperCase(),
-      };
     },
   });
 
