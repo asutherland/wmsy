@@ -1,0 +1,3 @@
+#lang narscribblus/interactive
+
+@showtypes[#:public]

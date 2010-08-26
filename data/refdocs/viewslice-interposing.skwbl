@@ -54,6 +54,11 @@ may optionally also invoke the maker for the first element in the view slice
   });
 }]
 
+We have instrumented our example code with calls to traceWrap which result in
+the trace output we see below.  Feel free to edit the addressbook data code
+above to add more names; hit the 'Apply Changes' button when you are done to
+see the new output and the new trace results.
+
 @traceOutput["addrbook-example"]{Addressbook Example Trace}
 
 @collapsed["Wmsy Boilerplate"]{@boilerplate["wmsy-prolog"
