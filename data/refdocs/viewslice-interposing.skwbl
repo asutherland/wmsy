@@ -40,7 +40,7 @@ consecutive objectives in the view slice, we invoke the maker function.  We
 may optionally also invoke the maker for the first element in the view slice
 (default: yes) and the last element (default: no).
 
-@exampleCode["addrbook-interposer"
+@exampleCode["addrbook-interposer" "wmsy-prolog"
 @js{
   var letterInterposer = wy.defineInterposingViewSlice({
     classifier: traceWrap("green", function classifier(person) {
@@ -69,7 +69,7 @@ see the new output and the new trace results.
 }]}
 
 @collapsed["Addressbook Widgets"]{
-@exampleCode["addrbook-widgets"
+@exampleCode["addrbook-widgets" "wmsy-prolog" "addrbook-interposer"
 @js{
   wy.defineWidget({
     name: "giant-letter",
@@ -109,7 +109,7 @@ see the new output and the new trace results.
 }]}
 
 @collapsed["Addressbook Example Insertion"]{
-@exampleCode["addrbook-insertion"
+@exampleCode["addrbook-insertion" "wmsy-prolog" "addrbook-data"
 @js{
   var binder = wy.wrapElement(exampleDomNode);
   binder.bind({type: "addressbook", obj: addrbook});
