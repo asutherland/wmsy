@@ -24,14 +24,10 @@ like to insert giant letters before each section of the alphabet.
 }]}
 
 @exampleShow["addrbook-example"
-  "wmsy-prolog" "addrbook-interposer" "addrbook-widgets" "addrbook-data"
+  "wmsy-prolog" "addrbook-interposer"
+  "addrbook-widg-items" "addrbook-widg-addrbook" "addrbook-data"
   "addrbook-insertion"
 ]{Addressbook Example Output}
-
-There are obviously a number of ways you could accomplish this, some requiring
-more custom code than others and some being more efficient than others in terms
-of how much of the total data-set you need to load into memory.  The interposing
-view slice tries to be good on both counts.
 
 You provide a classifier function and a maker function.  The classifier function
 is invoked for every object that is to be exposed to the consumer of the view
@@ -40,7 +36,7 @@ consecutive objectives in the view slice, we invoke the maker function.  We
 may optionally also invoke the maker for the first element in the view slice
 (default: yes) and the last element (default: no).
 
-@exampleCode["addrbook-interposer" "wmsy-prolog"
+@exampleCode["addrbook-interposer" #:deps "wmsy-prolog"
 @js{
   var letterInterposer = wy.defineInterposingViewSlice({
     classifier: traceWrap("green", function classifier(person) {
@@ -61,15 +57,29 @@ see the new output and the new trace results.
 
 @traceOutput["addrbook-example"]{Addressbook Example Trace}
 
-@collapsed["Wmsy Boilerplate"]{@boilerplate["wmsy-prolog"
+The letterInterposer plugs into the definition of a list widget where you would
+normally specify the constraint.
+
+@exampleCode["addrbook-widg-addrbook"
+  #:deps "wmsy-prolog" "addrbook-interposer"
+  #:highlight letterInterposer
 @js{
-  var wmsy = require("wmsy/wmsy");
-  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
-                                clickToFocus: true});
-}]}
+  wy.defineWidget({
+    name: "addressbook",
+    constraint: {
+      type: "addressbook",
+    },
+    structure: {
+      peeps: wy.vertList(
+               letterInterposer({type: "interposed"},
+                                {type: "person"}),
+               "peeps"),
+    }
+  });
+}]
 
 @collapsed["Addressbook Widgets"]{
-@exampleCode["addrbook-widgets" "wmsy-prolog" "addrbook-interposer"
+@exampleCode["addrbook-widg-items" #:deps "wmsy-prolog"
 @js{
   wy.defineWidget({
     name: "giant-letter",
@@ -93,23 +103,17 @@ see the new output and the new trace results.
       name: wy.bind("name"),
     },
   });
+}]}
 
-  wy.defineWidget({
-    name: "addressbook",
-    constraint: {
-      type: "addressbook",
-    },
-    structure: {
-      peeps: wy.vertList(
-               letterInterposer({type: "interposed"},
-                                {type: "person"}),
-               "peeps"),
-    }
-  });
+@collapsed["Wmsy Boilerplate"]{@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
 }]}
 
 @collapsed["Addressbook Example Insertion"]{
-@exampleCode["addrbook-insertion" "wmsy-prolog" "addrbook-data"
+@exampleCode["addrbook-insertion" #:deps "wmsy-prolog" "addrbook-data"
 @js{
   var binder = wy.wrapElement(exampleDomNode);
   binder.bind({type: "addressbook", obj: addrbook});
