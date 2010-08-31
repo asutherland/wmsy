@@ -87,6 +87,9 @@ exports.seekKeyBased = function(test) {
       listener.items = aItems;
     },
     gotDidSeek: false,
+    reset: function() {
+      this.base = this.items = this.gotDidSeek = null;
+    },
   };
 
   var list = ["alpha", "bobo", "omegb", "philharmonia", "zeta", "zoot"];
@@ -102,13 +105,14 @@ exports.seekKeyBased = function(test) {
                    "list contents");
   test.assertEqual(slice.availLow, 1, "low avail");
   test.assertEqual(slice.availHigh, 2, "high avail");
+  listener.reset();
 
   // searchKnown for known values should work...
   test.assertEqual(slice.searchKnown("bobo"), 1, "searchKnown");
   test.assertEqual(slice.searchKnown("omegb"), 2, "searchKnown");
   test.assertEqual(slice.searchKnown("philharmonia"), 3, "searchKnown");
   // searchKnown for values outside our known range should end up clamping to
-  //  the known values...
+  //  the buffered values...
   test.assertEqual(slice.searchKnown("a"), 1, "searchKnown");
   test.assertEqual(slice.searchKnown("zzzz"), 3, "searchKnown");
 
@@ -122,6 +126,7 @@ exports.seekKeyBased = function(test) {
                    "list contents");
   test.assertEqual(slice.availLow, 1, "low avail");
   test.assertEqual(slice.availHigh, 2, "high avail");
+  listener.reset();
 
   slice.seek("omega", 1, 1);
   test.assert(listener.gotDidSeek);
@@ -132,16 +137,18 @@ exports.seekKeyBased = function(test) {
                    "list contents");
   test.assertEqual(slice.availLow, 0, "low avail");
   test.assertEqual(slice.availHigh, 3, "high avail");
+  listener.reset();
 
   slice.seek("philharmonia", 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 2, "base should be at 0");
+  test.assertEqual(listener.base, 2, "base should be at 2");
   test.assertEqual(listener.items.length, 3, "list length");
   test.assertEqual(listener.items.toString(),
                    ["omegb", "philharmonia", "zeta"].toString(),
                    "list contents");
   test.assertEqual(slice.availLow, 2, "low avail");
   test.assertEqual(slice.availHigh, 1, "high avail");
+  listener.reset();
 
   slice.seek("a", 1, 1);
   test.assert(listener.gotDidSeek);
@@ -152,10 +159,11 @@ exports.seekKeyBased = function(test) {
                    "list contents");
   test.assertEqual(slice.availLow, 0, "low avail");
   test.assertEqual(slice.availHigh, 4, "high avail");
+  listener.reset();
 
   slice.seek("zzzzzzzzz", 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 4, "base should be at 0");
+  test.assertEqual(listener.base, 4, "base should be at 4");
   test.assertEqual(listener.items.length, 2, "list length");
   test.assertEqual(listener.items.toString(),
                    ["zeta", "zoot"].toString(),
@@ -164,4 +172,5 @@ exports.seekKeyBased = function(test) {
   test.assertEqual(slice.availHigh, 0, "high avail");
 
   test.assertEqual(slice.translateIndex(2), "omegb", "translate");
+  listener.reset();
 };
