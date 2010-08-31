@@ -123,5 +123,35 @@ exports.seekKeyBased = function(test) {
   test.assertEqual(slice.availLow, 0, "low avail");
   test.assertEqual(slice.availHigh, 3, "high avail");
 
+  slice.seek("philharmonia", 1, 1);
+  test.assert(listener.gotDidSeek);
+  test.assertEqual(listener.base, 2, "base should be at 0");
+  test.assertEqual(listener.items.length, 3, "list length");
+  test.assertEqual(listener.items.toString(),
+                   ["omegb", "philharmonia", "zeta"].toString(),
+                   "list contents");
+  test.assertEqual(slice.availLow, 2, "low avail");
+  test.assertEqual(slice.availHigh, 1, "high avail");
+
+  slice.seek("a", 1, 1);
+  test.assert(listener.gotDidSeek);
+  test.assertEqual(listener.base, 0, "base should be at 0");
+  test.assertEqual(listener.items.length, 2, "list length");
+  test.assertEqual(listener.items.toString(),
+                   ["alpha", "bobo"].toString(),
+                   "list contents");
+  test.assertEqual(slice.availLow, 0, "low avail");
+  test.assertEqual(slice.availHigh, 4, "high avail");
+
+  slice.seek("zzzzzzzzz", 1, 1);
+  test.assert(listener.gotDidSeek);
+  test.assertEqual(listener.base, 4, "base should be at 0");
+  test.assertEqual(listener.items.length, 2, "list length");
+  test.assertEqual(listener.items.toString(),
+                   ["zeta", "zoot"].toString(),
+                   "list contents");
+  test.assertEqual(slice.availLow, 4, "low avail");
+  test.assertEqual(slice.availHigh, 0, "high avail");
+
   test.assertEqual(slice.translateIndex(2), "omegb", "translate");
 };
