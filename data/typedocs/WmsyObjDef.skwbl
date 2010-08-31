@@ -31,20 +31,47 @@
   @group["Function"
     @key["constructor" #:optional Function]{}
 
-    @key["impl" #:optional @dictof[
-      @key["attribute name" String]
-      @value["function" Function]
+    @key["impl" #:optional @dict[
+      @key["preInit" #:optional @func[@args[] @return[]]]{
+      }
+
+      @key["postInit" #:optional @func[@args[] @return[]]]{
+      }
+
+      @key["update" #:optional @func[
+        @args[
+          @param[aRecursive Boolean]{
+            Should all nested widgets be updated as well?  Sub-widgets are
+            always automatically updated.
+          }
+        ]
+        @return[]
+      ]]{
+        The update function is responsible for updating the visual status of the
+        widget to reflect the current state of the bound object.  This method is
+        invoked only when wmsy is explicitly told to update a binding, in which
+        case it may be invoked because of recursive notifications.
+
+        You would want to implement this method if you do any custom
+        manipulation of the DOM tree.  If you provide an implementation of this
+        method, you must invoke __update on the binding before you return so
+        that the built-in mechanisms still operate.  If you do not provide an
+        implementation, __update will automatically be invoked.
+      }
+
+      @key["destroy" #:optional @func[
+        @args[]
+        @return[]
+      ]]{
+        The destroy function is responsible for widget cleanup.  If you provide
+        an implementation of this method, you must invoke __destroy on the
+        binding before you return so that the built-in mechanisms still operate.
+        If you do not provide an implementation, __destroy will automatically
+        be invoked.
+      }
     ]]{
       All of the functions you put in here will end up exposed on your binding.
-      There are a few well-known functions you may want to implement in here:
-      @itemize[
-        @item{preInit}
-        @item{postInit}
-      ]
-      And a few already-implemented methods you may want to clobber:
-      @itemize[
-        @item{update}
-      ]
+      There are a few well-known functions you may want to implement.
     }
   ]
 

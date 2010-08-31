@@ -69,3 +69,59 @@ exports.testPartialSpanBasics = function(test) {
   test.assertEqual(slice.availLow, 0, "low avail");
   test.assertEqual(slice.availHigh, 0, "high avail");
 };
+
+/**
+ *
+ */
+exports.seekKeyBased = function(test) {
+  function nameFetcher(o) {
+    return o;
+  }
+  function nameComparator(a, b) {
+    return a.localeCompare(b);
+  }
+  var listener = {
+    didSeek: function(aBaseIndex, aItems) {
+      this.gotDidSeek = true;
+      listener.base = aBaseIndex;
+      listener.items = aItems;
+    },
+    gotDidSeek: false,
+  };
+
+  var list = ["alpha", "bobo", "omegb", "philharmonia", "zeta", "zoot"];
+  var slice = new vst.StaticViewSlice(list, listener, null,
+                                      nameFetcher, nameComparator);
+
+  slice.seek("omegc", 1, 1);
+  test.assert(listener.gotDidSeek);
+  test.assertEqual(listener.base, 1, "base should be at 1");
+  test.assertEqual(listener.items.length, 3, "list length");
+  test.assertEqual(listener.items.toString(),
+                   ["bobo", "omegb", "philharmonia"].toString(),
+                   "list contents");
+  test.assertEqual(slice.availLow, 1, "low avail");
+  test.assertEqual(slice.availHigh, 2, "high avail");
+
+  slice.seek("omegb", 1, 1);
+  test.assert(listener.gotDidSeek);
+  test.assertEqual(listener.base, 1, "base should be at 1");
+  test.assertEqual(listener.items.length, 3, "list length");
+  test.assertEqual(listener.items.toString(),
+                   ["bobo", "omegb", "philharmonia"].toString(),
+                   "list contents");
+  test.assertEqual(slice.availLow, 1, "low avail");
+  test.assertEqual(slice.availHigh, 2, "high avail");
+
+  slice.seek("omega", 1, 1);
+  test.assert(listener.gotDidSeek);
+  test.assertEqual(listener.base, 0, "base should be at 0");
+  test.assertEqual(listener.items.length, 3, "list length");
+  test.assertEqual(listener.items.toString(),
+                   ["alpha", "bobo", "omegb"].toString(),
+                   "list contents");
+  test.assertEqual(slice.availLow, 0, "low avail");
+  test.assertEqual(slice.availHigh, 3, "high avail");
+
+  test.assertEqual(slice.translateIndex(2), "omegb", "translate");
+};
