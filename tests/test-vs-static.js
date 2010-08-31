@@ -71,7 +71,7 @@ exports.testPartialSpanBasics = function(test) {
 };
 
 /**
- *
+ * Test seeking logic (and reverse mapping) with a key-based ordering.
  */
 exports.seekKeyBased = function(test) {
   function nameFetcher(o) {
@@ -102,6 +102,16 @@ exports.seekKeyBased = function(test) {
                    "list contents");
   test.assertEqual(slice.availLow, 1, "low avail");
   test.assertEqual(slice.availHigh, 2, "high avail");
+
+  // searchKnown for known values should work...
+  test.assertEqual(slice.searchKnown("bobo"), 1, "searchKnown");
+  test.assertEqual(slice.searchKnown("omegb"), 2, "searchKnown");
+  test.assertEqual(slice.searchKnown("philharmonia"), 3, "searchKnown");
+  // searchKnown for values outside our known range should end up clamping to
+  //  the known values...
+  test.assertEqual(slice.searchKnown("a"), 1, "searchKnown");
+  test.assertEqual(slice.searchKnown("zzzz"), 3, "searchKnown");
+
 
   slice.seek("omegb", 1, 1);
   test.assert(listener.gotDidSeek);
