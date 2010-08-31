@@ -1,5 +1,5 @@
 var vst = require("wmsy/viewslice-static");
-var vsi = require("wmsy/wmsy-viewslice");
+var vsi = require("wmsy/viewslice-interpose");
 
 function alphaClassify(s) {
   return s[0].toLocaleUpperCase();
