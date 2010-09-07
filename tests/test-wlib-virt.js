@@ -64,9 +64,14 @@ var wheelScrollUp = dth.wheelScrollUp, wheelScrollDown = dth.wheelScrollDown;
 /**
  * Close over the checkKids function for reuse convenience.
  *
- * @param kids A live nodelist of the children nodes of the virtual list
- *     binding.
- * @param test The test instance to invoke all assertion/test methods on.
+ * @args[
+ *   @param[kids]{
+ *     A live nodelist of the children nodes of the virtual list binding.
+ *   }
+ *   @param[test]{
+ *     The test instance to invoke all assertion/test methods on.
+ *   }
+ * ]
  */
 function makeKidHelpers() {
   var kids, test, binding;
@@ -111,15 +116,27 @@ function makeKidHelpers() {
    *  duplicate the expectations for checkKids.  All values should be provided
    *  as the (equivalent) binding values.  All lists must be provided.
    *
-   * @param aDesc A brief description of the current state for error message
-   *     purposes.
-   * @param aPreKids Nodes not displayed at all but intentionally buffered or
-   *     retained/not discarded above the visible area..
-   * @param aParPre Partially visible nodes at the top.
-   * @param aFullVisKids Fully visible nodes.
-   * @param aParPost Partially visible nodes at the bottom.
-   * @param aPostKids Nodes not displayed but buffered/retained below the
-   *     visible area.
+   * @args[
+   *   @param[aDesc]{
+   *     A brief description of the current state for error message purposes.
+   *   }
+   *   @param[aPreKids]{
+   *     Nodes not displayed at all but intentionally buffered or retained/not
+   *     discarded above the visible area.
+   *   }
+   *   @param[aParPre]{
+   *     Partially visible nodes at the top.
+   *   }
+   *   @param[aFullVisKids]{
+   *     Fully visible nodes.
+   *   }
+   *   @param[aParPost]{
+   *     Partially visible nodes at the bottom.
+   *   }
+   *   @param[aPostKids]{
+   *     Nodes not displayed but buffered/retained below the visible area.
+   *   }
+   * ]
    */
   expectKids: function expectKids(aDesc,
                      aPreKids, aParPre, aFullVisKids, aParPost, aPostKids) {

@@ -24,9 +24,9 @@ exports.testInitialFullPass = function(test) {
     heardSeek: false,
   };
 
-  var rawSlice = new vst.StaticViewSlice(list, null);
+  var rawSlice = new vst.StaticViewSlice(list, listener);
   var interpSlice = new vsi.DecoratingInterposingViewSlice(
-                      rawSlice, listener, alphaSliceDef);
+                      rawSlice, alphaSliceDef);
   interpSlice.seek(0);
   test.assert(listener.heardSeek);
 };
