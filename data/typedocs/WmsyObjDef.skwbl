@@ -20,10 +20,10 @@
     Admittedly, at the current time no part of the framework surface this.
   }
 
-  @key["constraint" #:required WmsyConstraintDef]{}
+  @key["constraint" #:required ConstraintDef]{}
 
   @group["Form"
-    @key["structure" #:required WmsyStructureDefIsh]{}
+    @key["structure" #:required StructureDefIsh]{}
 
     @key["style" #:optional WmsyStyleDef]{}
   ]
@@ -124,15 +124,18 @@
   }
 ]]
 
-@typedef[WmsyStructureDefIsh @oneof[WmsyStructureDef WmsyObjDecorator]]
+@typedef[StructureDefIsh @oneof[StructureDef ObjDecorator]]
 
-@typedef[WmsyStyleDef @dictof[#:key String
-                                #:value @oneof[WmsyStyleDef WmsyStyleSubDef]]{
+@typedef[StyleDef @dictof[
+  @key["name" String]
+  @value["value" @oneof[StyleDef StyleSubDef]]{
   }
-]
+]]
 
-@typedef[WmsyStyleSubDef @dictof[
-  #:key String
-  #:value @oneof[
+@typedef[StyleSubDef @dictof[
+  @key["name" String]
+  @value["value" @oneof[
     String
-    @listof["css line" String]]]]
+    @listof["css line" String]]
+  ]
+]]
