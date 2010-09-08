@@ -67,23 +67,14 @@ Widget-wise, we can model things like so:
 
 Here's what the output looks like:
 
-@exampleShow["wmsy-prolog" "lights"
-@js{
-  var binder = wy.wrapElement(exampleDomNode);
-  var containerObj = {items: [{kind: "lamp"}, {kind: "remote"}]};
-  binder.bind({type: "room", obj: containerObj});
-}]
+@exampleShow["lights-example"
+  "wmsy-prolog" "lights"
+  "lights-example-insertion"
+]{Lights Example}
 
 And here's the source code that makes it happen:
 
-@collapsed["Boilerplate"]{@boilerplate["wmsy-prolog"
-@js{
-  var wmsy = require("wmsy/wmsy");
-  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
-                                clickToFocus: true});
-}]}
-
-@exampleCode["lights"
+@exampleCode["lights" #:deps "wmsy-prolog"
 @js{
   wy.defineWidget({
     name: "lamp-remote",
@@ -102,16 +93,11 @@ And here's the source code that makes it happen:
   wy.defineWidget({
     name: "lamp",
     constraint: {type: "item", obj: {kind: "lamp"}},
-    structure: {},
-    impl: {
-      preInit: function() {
-        this.lightOn = false;
-      }
-    },
+    structure: wy.block({}, {lightOn: "lightOn"}),
     receive: {
       toggleLight: function() {
-        this.lightOn = !this.lightOn;
-        this.domNode.setAttribute("light", this.lightOn ? "on" : "off");
+        this.obj.lightOn = !this.obj.lightOn;
+        this.update();
       }
     },
     style: {
@@ -123,7 +109,7 @@ And here's the source code that makes it happen:
           "background-color: black;",
           "display: inline-block;",
         ],
-        '[light="on"]': [
+        '[lightOn="true"]': [
           "background-color: yellow;",
         ],
       }
@@ -144,14 +130,14 @@ And here's the source code that makes it happen:
     },
     events: {
       addLamp: {click: function() {
-        var light = {kind: "lamp"};
+        var light = {kind: "lamp", lightOn: false};
         this.obj.items.push(light);
-        this.items_splicey(-1, 0, [light]);
+        this.update();
       }},
       addRemote: {click: function() {
         var toggler = {kind: "remote"};
         this.obj.items.push(toggler);
-        this.items_splicey(-1, 0, [toggler]);
+        this.update();
       }},
       removeAll: {click: function() {
         this.obj.items = [];
@@ -161,3 +147,17 @@ And here's the source code that makes it happen:
   });
 }]
 
+@collapsed["Boilerplate"]{@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
+}]}
+
+@collapsed["Example Insertion"]{
+@exampleCode["lights-example-insertion" #:deps "wmsy-prolog" "lights"
+@js{
+  var binder = wy.wrapElement(exampleDomNode);
+  var containerObj = {items: [{kind: "lamp"}, {kind: "remote"}]};
+  binder.bind({type: "room", obj: containerObj});
+}]}
