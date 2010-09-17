@@ -12,13 +12,7 @@
  *  events.  You can see the wreckage down at the bottom.
  */
 
-require.def("wmsy/dom-test-helper",
-  [
-    "exports",
-  ],
-  function(
-    exports
-  ) {
+var Ci = require("chrome").Ci;
 
 /**
  * Actually perform event dispatch given a charCode, keyCode, and boolean for
@@ -174,7 +168,7 @@ function fakeWheelEvent(aEvent, aTarget) {
  */
 function _parseModifiers(aEvent)
 {
-  const masks = Components.interfaces.nsIDOMNSEvent;
+  const masks = Ci.nsIDOMNSEvent;
   var mval = 0;
   if (aEvent.shiftKey)
     mval |= masks.SHIFT_MASK;
@@ -216,8 +210,8 @@ function _parseModifiers(aEvent)
  */
 function synthesizeMouseScroll(aTarget, aOffsetX, aOffsetY, aEvent, aWindow)
 {
-  var utils = aWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor).
-                      getInterface(Components.interfaces.nsIDOMWindowUtils);
+  var utils = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).
+                      getInterface(Ci.nsIDOMWindowUtils);
   if (utils) {
     // See nsMouseScrollFlags in nsGUIEvent.h
     const kIsVertical = 0x02;
@@ -278,5 +272,3 @@ var wheelScrollDown = exports.wheelScrollDown =
   //sendWheelEvent({deltaY: -aPix}, aDomNode);
   fakeWheelEvent({deltaY: -aPix}, aDomNode);
 };
-
-}); // end require.def

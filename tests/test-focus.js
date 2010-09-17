@@ -36,11 +36,11 @@
  * Test focus mechanisms,
  */
 
-var pth = require("wmsy/page-test-helper");
+var pth = require("wmsy-plat/page-test-helper");
 
 var wmsy = require("wmsy/wmsy");
 
-var sendKeyEvent = require("wmsy/dom-test-helper").sendKeyEvent;
+var sendKeyEvent = require("wmsy-plat/dom-test-helper").sendKeyEvent;
 
 function bindPush(aDomNode, aVertical) {
   return {
