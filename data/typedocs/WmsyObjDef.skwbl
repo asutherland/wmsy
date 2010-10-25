@@ -117,7 +117,12 @@
     }
   ]
 
-  @key["provideContext" #:optional]
+  @key["provideContext" #:optional
+    @dictof[
+      @key["name"]
+      @value[BindingDef]
+    ]
+  ]
 
   @key["popups" #:optional @dictof[String WmsyConstraintDef]]{
     
@@ -125,6 +130,24 @@
 ]]
 
 @typedef[StructureDefIsh @oneof[StructureDef ObjDecorator]]
+
+@typedef[BindingDef @oneof[
+  @case[String]{
+    The name of an attribute on the bound object.
+  }
+  @case[@listof["attribute name"]]{
+    A list of attributes to traverse starting from the bound object.
+  }
+  @case[ComputedValueDescriptor]{
+    A value computed by invoking an impl-defined function on the binding.
+  }
+  @case[ImplDataDescriptor]{
+    A value retrieved from the impl definition for the current widget.
+  }
+  @case[ConstraintValueDescriptor]{
+    A value retrieved from the constraint dictionary.
+  }
+]]
 
 @typedef[StyleDef @dictof[
   @key["name" String]
