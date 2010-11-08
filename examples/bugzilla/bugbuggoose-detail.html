@@ -8,21 +8,33 @@
       if (!console)
         console = {
           log: function() {},
-          error: function() {}
+          error: function() {},
+          info: function() {},
+          warn: function() {},
       };
+      function dump(aMsgWithNewline) {
+        console.log(aMsgWithNewline.replace("\n", "", "g"));
+      }
     </script>
     <script type="text/javascript" src="../../../protovis/protovis-d3.2.js"></script>
-    <script type="text/javascript" src="../../../teleport/lib/teleport.js"></script>
+    <script type="text/javascript" src="../../../requirejs/require.js"></script>
     <link href="bugbuggoose-detail.css" type="text/css" rel="stylesheet"/>
+    <script>
+      require(
+        {
+          baseUrl: "../../../",
+          paths: {
+            "requirejs": "requirejs/build/convert/commonjs",
+            "wmsy": "wmsy/lib/wmsy",
+          },
+        },
+        ["requirejs/global-es5", "wmsy/examples/bugzilla-main-detail"],
+        function(es5, mainModule) {
+          mainModule.main();
+        }
+      );
+    </script>
   </head>
 <body id="body">
-  <script>
-    require.Sandbox({
-      global: window,
-      catalog: {
-        "wmsy": { path: "../../" },
-      },
-    }).main("wmsy/examples/bugzilla-main-detail");
-  </script>
 </body>
 </html>

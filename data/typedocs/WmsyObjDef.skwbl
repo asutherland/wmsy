@@ -120,11 +120,13 @@
   @key["provideContext" #:optional
     @dictof[
       @key["name"]
-      @value[BindingDef]
+      @value["binding" BindingDef]
     ]
   ]
 
-  @key["popups" #:optional @dictof[String WmsyConstraintDef]]{
+  @key["popups" #:optional @dictof[
+    @key["popup name" String]
+    @value["popup constraint" WmsyConstraintDef]]]{
     
   }
 ]]

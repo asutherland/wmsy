@@ -17,21 +17,21 @@
       }
     </script>
     <script type="text/javascript" src="../../../requirejs/require.js"></script>
-  <script>
-    require(
-      {
-        baseUrl: "../../../",
-        paths: {
-          "requirejs": "requirejs/build/convert/commonjs",
-          "wmsy": "wmsy/lib/wmsy",
+    <script>
+      require(
+        {
+          baseUrl: "../../../",
+          paths: {
+            "requirejs": "requirejs/build/convert/commonjs",
+            "wmsy": "wmsy/lib/wmsy",
+          },
         },
-      },
-      ["requirejs/global-es5", "wmsy/examples/messages-simple"],
-      function(es5, mainModule) {
-        mainModule.main();
-      }
-    );
-  </script>
+        ["requirejs/global-es5", "wmsy/examples/messages-simple"],
+        function(es5, mainModule) {
+          mainModule.main();
+        }
+      );
+    </script>
   </head>
 <body>
   <div id="content" style="display: inline-block;">
