@@ -1,6 +1,10 @@
 #lang narscribblus/interactive
 
 @typedef["WidgetDef" @dict[
+  @desc{
+    Wmsy widget definition.
+  }
+
   @key["name" #:required String]{
     A locally unique name for the widget.  Convention is to use single dashes
     to separate words, but it's really up to you.
@@ -63,11 +67,10 @@
         @args[]
         @return[]
       ]]{
-        The destroy function is responsible for widget cleanup.  If you provide
-        an implementation of this method, you must invoke __destroy on the
-        binding before you return so that the built-in mechanisms still operate.
-        If you do not provide an implementation, __destroy will automatically
-        be invoked.
+        Handles widget cleanup.  If you provide an implementation of this
+        method, you must invoke __destroy on the binding before you return so
+        that the built-in mechanisms still operate.  If you do not provide an
+        implementation, __destroy will automatically be invoked.
       }
     ]]{
       All of the functions you put in here will end up exposed on your binding.
@@ -149,7 +152,9 @@
   @case[ConstraintValueDescriptor]{
     A value retrieved from the constraint dictionary.
   }
-]]
+]]{
+  
+}
 
 @typedef[StyleDef @dictof[
   @key["name" String]
