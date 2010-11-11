@@ -1,10 +1,6 @@
 #lang narscribblus/interactive
 
 @typedef["WidgetDef" @dict[
-  @desc{
-    Wmsy widget definition.
-  }
-
   @key["name" #:required String]{
     A locally unique name for the widget.  Convention is to use single dashes
     to separate words, but it's really up to you.
@@ -132,7 +128,9 @@
     @value["popup constraint" WmsyConstraintDef]]]{
     
   }
-]]
+]]{
+  The wmsy widget definition dictionary.
+}
 
 @typedef[StructureDefIsh @oneof[StructureDef ObjDecorator]]
 
