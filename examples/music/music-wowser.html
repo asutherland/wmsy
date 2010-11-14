@@ -3,16 +3,36 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Wmsy Music Wowser Example</title>
-    <script type="text/javascript" src="../../../teleport/lib/teleport.js"></script>
+    <script type="text/javascript">
+      var console;
+      if (!console)
+        console = {
+          log: function() {},
+          error: function() {},
+          info: function() {},
+          warn: function() {},
+      };
+      function dump(aMsgWithNewline) {
+        console.log(aMsgWithNewline.replace("\n", "", "g"));
+      }
+    </script>
+    <script type="text/javascript" src="../../../requirejs/require.js"></script>
+    <script>
+      require(
+        {
+          baseUrl: "../../../",
+          paths: {
+            "requirejs": "requirejs/build/convert/commonjs",
+            "wmsy": "wmsy/lib/wmsy",
+          },
+        },
+        ["requirejs/global-es5", "wmsy/examples/music-wowser"],
+        function(es5, mainModule) {
+          mainModule.main();
+        }
+      );
+    </script>
   </head>
 <body id="content" style="width: 100%; margin: 0;">
-  <script>
-    require.Sandbox({
-      global: window,
-      catalog: {
-        "wmsy": { path: "../../" },
-      },
-    }).main("wmsy/examples/music-wowser");
-  </script>
 </body>
 </html>
