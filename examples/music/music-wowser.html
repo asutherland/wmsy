@@ -16,6 +16,13 @@
         console.log(aMsgWithNewline.replace("\n", "", "g"));
       }
     </script>
+    <style>
+      /* stop accidentally selecting stuff! */
+      body, div, span, img, form, input, a {
+        -moz-user-select: none;
+        -webkit-user-select: none; -webkit-user-drag: none;
+      }
+    </style>
     <script type="text/javascript" src="../../../requirejs/require.js"></script>
     <script>
       require(
