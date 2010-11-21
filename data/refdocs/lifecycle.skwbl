@@ -1,0 +1,156 @@
+#lang narscribblus/interactive
+
+@section{Figuring out which widget to bind.}
+
+@section{Creating/binding that widget.}
+
+@itemize[
+  @item{
+    Construction.  The true constructor for each widget is automatically
+    generated and consists of the following steps:
+
+    @itemize[
+      @item{
+        Parameterization check.  If any pieces of the widget's constraint
+        were marked as `PARAM`, then our widget is parameterized.  We build a
+        unique key out of all of the parameters and their values (from
+        stringification) to index into a dictionary to check if this specific
+        variant has been created yet.
+
+        If it has not been created, we build a new 'link' in the prototype
+        chain.  We automatically create "__parameter_NAME" entries for each
+        parameter and place the value in the value.  We then go on to call
+        the `protoConstructor` function if one was defined in the widget
+        definition with a "this" of the new prototype link (already linked
+        to the widget's prototype via __proto__) and the full constraint object
+        of the widget being created as the sole argument.  The constructor
+        should be very careful about looking at attributes in the constraint
+        object that are not parameterized.  (If they vary and therefore need
+        to be processed by the protoConstructor, they should likely be marked
+        as parameters themselves!)
+
+        If the variant already exists, we just use it.  Either way we re-parent
+        our instance to use the parameterized prototype as its prototype.
+      }
+      @item{
+        Any user-provided constructor (defined as "constructor" in the widget
+        definition) is invoked.  The "this" is that of the instance and the
+        sole argument is the constraint object.
+      }
+    ]
+  }
+  @item{
+    Binding.
+
+    @itemize[
+      @item{
+        DOM node preparation:
+        @itemize[
+          @item{
+            The CSS class of the binding is added to the DOM node.  For
+            sub-widgets, the CSS class of the parent widget for that node
+            will also be present.  For widgets in a list, the "-item" styling
+            class will also be present.
+          }
+          @item{
+            The pre-built DOM fragment for the widget is inserted.  If the
+            root node has any text content, that is also set.
+          }
+        ]
+      }
+      @item{
+        Externally-provided per-binding instance values are added to the
+        binding.  This is currently used to provide an __indirectParentBinding
+        pointer for popups to their conceptual parent binding since they are
+        not rooted in the DOM under their conceptual parent and this impacts
+        logic like emit/receive rendezvous and context providers.
+      }
+      @item{
+        The `preInit` function, if defined on the widget definition in the
+        `impl` dictionary, is invoked.  Because this happens prior to the
+        initializers or update() running, you probably never want to use this
+        other than as a last resort where you really know what you are doing.
+      }
+      @item{
+        All of the __initers for the widget are invoked with a 'this' of the
+        binding instance.  The __initers are added by the whole widget
+        definition process and consist of a series of parameterized closures.
+        If we were doing code generation, the would instead be baked into a
+        single function.
+
+        __initers are used to do the following things and possibly more:
+        @itemize[
+          @item{
+            Id space registration.
+          }
+          @item{
+            Context provider legwork.  If you include a `provideContext`
+            attribute in your widget definition, this is where we build and
+            populate that object using any binding definitions you provided.
+          }
+          @item{
+            Focus domain legwork.  Widgets which are focus domains (which
+            differs from focus containers or focusable items) need to create
+            them.
+          }
+          @item{
+            emit/receive/relay rendezvous logic.  This is when we try and
+            perform said linkage by walking up the tree.  Other initers and
+            indeed any other initialization logic should not assume that
+            emitter/receiver relationships are fully established during the
+            initialization phase.  This is because the thing we need to
+            connect to may be a cousin and may not yet exist depending on the
+            construction sequences of our ancestors.
+          }
+          @item{
+            Bound widget initialization; this also covers bound attributes.
+            This is the exact same logic that is added to the __updaters list.
+            For structure node FOO, this is equivalent to retrieving the value
+            by whatever mechanism the binding definition implies, and then doing
+            a FOO_set(value) with it.
+          }
+        ]
+      }
+      @item{
+        The `postInit` function, if defined on the widget definition in the
+        `impl` dictionary, is invoked.  This happens after the initalizers but
+        prior to calling update().  This means that bound widgets will not yet
+        have been created.
+      }
+      @item{
+        update() is invoked.  By default this is just a direct reference to
+        __update() which calls all the functions in the __updaters list,
+        but can be overridden by providing an `update` function on the widget
+        definition in the `impl` dictionary.
+
+        __updaters are used to do the following things and possibly more:
+        @itemize[
+          @item{
+            Context provider bindings are updated.  There is some redundancy
+            since we are re-doing exactly what we did for this in the __initers
+            phase.  This may be resolved in the future but is believed to be
+            a minor inefficiency at the current time.
+          }
+          @item{
+            Bound widget initialization/updating; this also covers bound
+            attributes.  For structure node FOO, this is equivalent to
+            retrieving the value by whatever mechanism the binding definition
+            implies, and then doing a FOO_set(value) with it.
+          }
+        ]
+      }
+      @item{
+        The `postInitUpdate` function, if defined on the widget definition in
+        the `impl` dictionary, is invoked.  If you want to do something during
+        widget initialization, this is probably the right place to do it.  If
+        you want to do something involving child widgets, this is definitely the
+        right place to do it, since this is the first function you can define
+        where the widgets have been initialized/updated.
+      }
+    ]
+  }
+]
+
+@section{Updating a widget.}
+
+@section{Destroying a widget.}
