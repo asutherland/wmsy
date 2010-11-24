@@ -29,13 +29,34 @@
   ]
 
   @group["Function"
-    @key["constructor" #:optional Function]{}
+    @key["protoConstructor" #:optional @func[
+      @args[
+        @param[constraintBasis]
+        @param[domNode DOMNode]{
+          The DOM Node that the binding that is triggering this parameterization
+          to occur will be bound onto.  This is provided strictly for debug
+          purposes so that context can be provided for failures.
+        }
+      ]
+    ]]{
+    }
+
+    @key["constructor" #:optional @func[
+      @args[
+        @param[constraintBasis]
+        @param[domNode DOMNode]
+      ]
+    ]]{
+    }
 
     @key["impl" #:optional @dict[
       @key["preInit" #:optional @func[@args[] @return[]]]{
       }
 
       @key["postInit" #:optional @func[@args[] @return[]]]{
+      }
+
+      @key["postInitUpdate" #:optional @func[@args[] @return[]]]{
       }
 
       @key["update" #:optional @func[
