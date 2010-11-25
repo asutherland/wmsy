@@ -16,16 +16,25 @@
         console.log(aMsgWithNewline.replace("\n", "", "g"));
       }
     </script>
-    <script type="text/javascript" src="../../../teleport/lib/teleport.js"></script>
+    <script type="text/javascript" src="../../../requirejs/require.js"></script>
+    <script>
+      require(
+        {
+          baseUrl: "../../../",
+          paths: {
+            "narscribblus": "narscribblus/lib/narscribblus",
+            "narscribblus-plat": "narscribblus/lib-requirejs/narscribblus-plat",
+            "requirejs": "requirejs/build/convert/commonjs",
+            "wmsy": "wmsy/lib/wmsy",
+          },
+        },
+        ["requirejs/global-es5", "wmsy/examples/testresults-show"],
+        function(es5, mainModule) {
+          mainModule.main();
+        }
+      );
+    </script>
   </head>
 <body id="body">
-  <script>
-    require.Sandbox({
-      global: window,
-      catalog: {
-        "wmsy": { path: "../../" },
-      },
-    }).main("wmsy/examples/testresults-show");
-  </script>
 </body>
 </html>

@@ -13,7 +13,13 @@ var alphaSliceDef = {
 };
 
 
-exports.testInitialFullPass = function(test) {
+function setupAlphaCheck(test) {
+}
+
+/**
+ * Test that a full-span seek produces correct behaviour.
+ */
+exports.testFullSeek = function(test) {
   var list = ["Aa", "Ab", "Ba", "Ca", "Cd"];
   var expectedList = ["A", "Aa", "Ab", "B", "Ba", "C", "Ca", "Cd"];
   var listener = {
@@ -29,4 +35,22 @@ exports.testInitialFullPass = function(test) {
                       rawSlice, alphaSliceDef);
   interpSlice.seek(0);
   test.assert(listener.heardSeek);
+  test.assert(interpSlice.atTop);
+  test.assert(interpSlice.atBottom);
 };
+
+exports.testPartialSeek = function(test) {
+};
+
+exports.testMultipleSeeks = function(test) {
+};
+
+exports.testTranslateIndex = function(test) {
+};
+
+exports.testGrow = function(test) {
+};
+
+exports.testNoteRanges = function(test) {
+};
+
