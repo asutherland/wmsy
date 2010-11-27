@@ -36,8 +36,9 @@
  * General operation and focus checking for popups.
  **/
 
-var pth = require("wmsy/page-test-helper");
-var wmsy = require("wmsy/wmsy");
+require.def("wmsy-tests/test-popups",
+            ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
+            function(wmsy, pth, exports) {
 
 /**
  * - Popups actually pop up.
@@ -75,3 +76,5 @@ exports.testPopupGeneral = function testPopupGeneral(test) {
 exports.testPopupFocus = function testPopupFocus(test) {
 
 };
+
+}); // end require.def

@@ -36,8 +36,9 @@
  * Test widget list functionality not covered elsewhere.
  **/
 
-var pth = require("wmsy/page-test-helper");
-var wmsy = require("wmsy/wmsy");
+require.def("wmsy-tests/test-widget-list",
+            ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
+            function(wmsy, pth, exports) {
 
 /**
  * Make sure ensureVisible with a straightforward list is able to scroll
@@ -48,6 +49,9 @@ function baseEnsureVisibleSimple(test, aVertical) {
 
   var wy = new wmsy.WmsyDomain({id: "wl-ensurevisible-" + vertString,
                                 domain: "wl-ensurevisible-" + vertString});
+
+  // be able to map the leaf value bindings from their value
+  wy.defineIdSpace("value", function(val) { return val; });
 
   wy.defineWidget({
     name: "container",
@@ -73,6 +77,7 @@ function baseEnsureVisibleSimple(test, aVertical) {
     constraint: {
       type: "item",
     },
+    idspaces: ["value"],
     structure: {
       numba: wy.bind(wy.SELF),
     },
@@ -118,9 +123,9 @@ function baseEnsureVisibleSimple(test, aVertical) {
     var emitter = wy.wrapElement(doc.getElementById("root"));
     var container = emitter.emit({type: "container", obj: rootObj});
 
-    var dude;
+    var dude, idSpace = emitter.idSpace;
     function goDude(i, aDoFocus) {
-      dude = container.items_itemMap[i];
+      dude = idSpace.findBindingsUsingId("value", i)[0];
       if (aDoFocus === undefined || aDoFocus) {
         console.log("ensuring", i, "is visible");
         dude.ensureVisible();
@@ -191,6 +196,9 @@ exports.testEnsureVisibleComplex = function testEnsureVisibleComplex(test) {
   var wy = new wmsy.WmsyDomain({id: "wl-ensurevisible-complex",
                                 domain: "wl-ensurevisible-complex"});
 
+  // be able to map the leaf value bindings from their value
+  wy.defineIdSpace("value", function(val) { return val; });
+
   wy.defineWidget({
     name: "outer-container",
     constraint: {
@@ -252,6 +260,7 @@ exports.testEnsureVisibleComplex = function testEnsureVisibleComplex(test) {
     constraint: {
       type: "item",
     },
+    idspaces: ["value"],
     structure: {
       label: wy.bind(wy.SELF),
     },
@@ -304,20 +313,16 @@ exports.testEnsureVisibleComplex = function testEnsureVisibleComplex(test) {
     var emitter = wy.wrapElement(doc.getElementById("root"));
     var container = emitter.emit({type: "outer-container", obj: rootObj});
 
-    var innerContainer, group, dude;
+    var innerContainer, group, dude, idSpace = emitter.idSpace;
     // set innerContainer, group, and dude based on the name.  also,
     //  ensureVisible the dude.
     function goDude(name) {
-      innerContainer = container.inners_itemMap[name[0]];
-      for (var iGroup = 0; iGroup < GROUP_NAMES.length; iGroup++) {
-        group = innerContainer.groups_itemMap[GROUP_NAMES[iGroup]];
-        if (name in group.things_itemMap) {
-          dude = group.things_itemMap[name];
-          console.log("mapped", name, "to", dude);
-          dude.ensureVisible();
-          break;
-        }
-      }
+      // use our idspace mechanism to find the dude then walk upwards to
+      //  figure out the others.
+      dude = idSpace.findBindingsUsingId("value", name)[0];
+      group = dude.__parentBinding;
+      innerContainer = group.__parentBinding;
+      dude.ensureVisible();
     }
 
     function dudeMaker(attrName) {
@@ -365,3 +370,5 @@ exports.testEnsureVisibleComplex = function testEnsureVisibleComplex(test) {
     test.done();
   }
 };
+
+}); // end require.def

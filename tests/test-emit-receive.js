@@ -38,8 +38,9 @@
  *  we also want to make sure that dynamic changes are also handled.
  */
 
-var pth = require("wmsy/page-test-helper");
-var wmsy = require("wmsy/wmsy");
+require.def("wmsy-tests/test-emit-receive",
+            ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
+            function(wmsy, pth, exports) {
 
 /**
  * A one-to-one emit/receive ancestor/descendent relationship.
@@ -369,9 +370,9 @@ exports.testComplexEmitReceive = function testComplexEmitReceive(test) {
     assertListsEq(bangoHeard, ["a", "b"]);
     resetLists();
 
-    objRoot.bango.kids = [objs.b, objs.c];
-    bango.kids_removeAll([objs.a]);
-    bango.kids_addAll([objs.c]);
+    // kill off a, add c
+    bango.kids_slice.mutateSplice(0, 1);
+    bango.kids_slice.mutateSplice(1, 0, objs.c);
 
     bingo.emit_bingoToMany();
     bango.emit_bangoToKids();
@@ -384,3 +385,5 @@ exports.testComplexEmitReceive = function testComplexEmitReceive(test) {
     test.done();
   }
 };
+
+}); // end require.def

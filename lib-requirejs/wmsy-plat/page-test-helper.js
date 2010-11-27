@@ -32,45 +32,51 @@
 *
 ****************************** END LICENSE BLOCK ******************************/
 
+
+require.def("wmsy-plat/page-test-helper",
+  [
+    "exports",
+  ],
+  function(
+    exports
+  ) {
+
+var body = null;
+
 /**
- * Test that we handle illegal things / extremely bad ideas.  These are usually
- *  bad things I have caused that would never be intentional and could save
- *  everyone a lot of trouble if we tell them about it rather than have them
- *  have to debug it.
- **/
-
-
-require.def("wmsy-tests/test-illegal",
-            ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
-            function(wmsy, pth, exports) {
-
-/**
- * Avoid a widget trying to instantiate itself as a (sub)widget.
+ * The style to set on iframes to have them not visually interfere with our page
+ *  but still allow the tests to have sane layout occurring.
+ *
+ * Right now this is just initial guesswork.
  */
-exports.testSelfRecursive = function testSelfRecursive(test) {
-  var wy = new wmsy.WmsyDomain({id: "recursive", domain: "i-recursive"});
+var IFRAME_STYLE =
+  "position: absolute; left: 0px; top: 0px; visibility: hidden; " +
+  "width: 1024px; height: 800px;";
 
-  wy.defineWidget({
-    name: "recursed",
-    constraint: {
-      type: "self-recursive",
-    },
-    structure: {
-      sub: wy.subWidget({}),
-    },
-  });
-
-  test.waitUntilDone();
-  pth.makeTestPage(test, gotPage);
-  function gotPage(doc, win) {
-    var emitter = wy.wrapElement(doc.getElementById("root"));
-
-    test.assertRaises(function asplode() {
-      var binding = emitter.emit({type: "self-recursive", obj: {}});
-    }, "self-recursive binding detected: i-recursive-recursive-recursed-sub");
-
-    test.done();
+/**
+ * Creates an iframe to run the test in along the lines of how the page-worker
+ *  mechanism works.  The global "document" is assumed.
+ */
+exports.makeTestPage = function(testHandle, testFunc) {
+  var doc = document;
+  if (body == null) {
+    body = doc.getElementsByTagName("body")[0];
   }
+
+  var iframe = doc.createElement("iframe");
+  iframe.setAttribute("style", IFRAME_STYLE);
+  body.appendChild(iframe);
+  // Okay, so data url's fail the same origin test and then we get sad, so...
+  // There may be a less dumb way to do this, but this worked for narscribblus
+  //  when it used iframes and this works for us now.
+  iframe.contentDocument.open();
+  iframe.contentDocument.write("<div id='root'></div>");
+  iframe.contentDocument.close();
+
+  setTimeout(function() {
+    testFunc(iframe.contentDocument, iframe.contentWindow);
+    body.removeChild(iframe);
+  }, 0);
 };
 
 }); // end require.def

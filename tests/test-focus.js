@@ -36,11 +36,16 @@
  * Test focus mechanisms,
  */
 
-var pth = require("wmsy-plat/page-test-helper");
+require.def("wmsy-tests/test-focus",
+  [
+    "wmsy/wmsy",
+    "wmsy-plat/page-test-helper",
+    "wmsy-plat/dom-test-helper",
+    "exports"
+  ],
+  function(wmsy, pth, dth, exports) {
 
-var wmsy = require("wmsy/wmsy");
-
-var sendKeyEvent = require("wmsy-plat/dom-test-helper").sendKeyEvent;
+var sendKeyEvent = dth.sendKeyEvent;
 
 function bindPush(aDomNode, aVertical) {
   return {
@@ -647,3 +652,5 @@ exports.xestTreeFocus = function testTreeFocus(test) {
 
 };
 */
+
+}); // end require.def

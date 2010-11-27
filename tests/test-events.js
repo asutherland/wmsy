@@ -34,12 +34,17 @@
 
 /**
  * Test wmsy event dispatching, mainly clicking.
- */
+ **/
 
-var pth = require("wmsy-plat/page-test-helper");
+require.def("wmsy-tests/test-events",
+  [
+    "wmsy/wmsy",
+    "wmsy-plat/page-test-helper",
+    "wmsy-plat/dom-test-helper",
+    "exports"
+  ],
+  function(wmsy, pth, dth, exports) {
 
-var wmsy = require("wmsy/wmsy");
-var dth = require("wmsy-plat/dom-test-helper");
 var sendMouseEvent = dth.sendMouseEvent;
 
 /**
@@ -408,3 +413,4 @@ exports.testClickOnWidgetList = function testClickOnWidgetList(test) {
   }
 };
 
+}); // end require.def

@@ -35,10 +35,11 @@
 /**
  * Test wmsy binding-ish things reflect objects into the DOM the way they
  *  should.
- */
+ **/
 
-var pth = require("wmsy/page-test-helper");
-var wmsy = require("wmsy/wmsy");
+require.def("wmsy-tests/test-bind",
+            ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
+            function(wmsy, pth, exports) {
 
 /**
  * Exercise the various binding methods to check that they all work as expected.
@@ -273,3 +274,5 @@ exports.testFromConstraintBind = function testFromConstraintBind(test) {
     test.done();
   }
 };
+
+}); //end require.def

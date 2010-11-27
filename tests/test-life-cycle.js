@@ -36,11 +36,11 @@
  * Test life-cycle issues; primarily that widgets get told about their
  *  destruction appropriately (so that they can un-register listeners,
  *  primarily.)
- */
+ **/
 
-var pth = require("wmsy/page-test-helper");
-var wmsy = require("wmsy/wmsy");
-
+require.def("wmsy-tests/test-life-cycle",
+            ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
+            function(wmsy, pth, exports) {
 
 /**
  * Test that destroy properly happens for children at top-level destruction as
@@ -250,25 +250,22 @@ exports.testWidgetListCycle = function testWidgetListCycle(test) {
     test.assertEqual(objs.a.liveness, 1, "a initial");
 
     // - explicit add b,c,d
-    rootObj.foo.push(objs.b, objs.c, objs.d); // does not affect widget...
-    binding.foo_addAll([objs.b, objs.c, objs.d]);
+    binding.foo_slice.mutateSplice(undefined, 0, objs.b, objs.c, objs.d);
     test.assertEqual(objs.a.liveness, 1, "a maintain");
     test.assertEqual(objs.b.liveness, 1, "b added");
     test.assertEqual(objs.c.liveness, 1, "c added");
     test.assertEqual(objs.d.liveness, 1, "d added");
 
     // - explicit remove a,c
-    rootObj.foo.splice(2, 1);
-    rootObj.foo.splice(0, 1);
-    binding.foo_removeAll([objs.a, objs.c]);
+    binding.foo_slice.mutateSplice(2, 1);
+    binding.foo_slice.mutateSplice(0, 1);
     test.assertEqual(objs.a.liveness, 0, "a removed");
     test.assertEqual(objs.b.liveness, 1, "b maintained");
     test.assertEqual(objs.c.liveness, 0, "c removed");
     test.assertEqual(objs.d.liveness, 1, "d maintained");
 
     // - explicit clear remainder (b, d)
-    rootObj.foo = [];
-    binding.foo_clear();
+    binding.foo_slice.mutateSplice(0, undefined);
     test.assertEqual(objs.a.liveness, 0, "a still dead");
     test.assertEqual(objs.b.liveness, 0, "b cleared");
     test.assertEqual(objs.c.liveness, 0, "c still dead");
@@ -293,3 +290,5 @@ exports.testWidgetListCycle = function testWidgetListCycle(test) {
     test.done();
   }
 };
+
+}); // end require.def

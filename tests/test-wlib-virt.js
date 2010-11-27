@@ -54,11 +54,17 @@
  * (Most complex: heterogeneous widget instances with tiling and non-tiling)
  * - Scroll wheel...
  * - Seek...
- */
+ **/
 
-var pth = require("wmsy-plat/page-test-helper");
-var wmsy = require("wmsy/wmsy");
-var dth = require("wmsy-plat/dom-test-helper");
+require.def("wmsy-tests/test-wlib-virt",
+  [
+    "wmsy/wmsy",
+    "wmsy-plat/page-test-helper",
+    "wmsy-plat/dom-test-helper",
+    "exports"
+  ],
+  function(wmsy, pth, dth, exports) {
+
 var wheelScrollUp = dth.wheelScrollUp, wheelScrollDown = dth.wheelScrollDown;
 
 /**
@@ -223,7 +229,7 @@ function makeKidHelpers() {
 }
 
 
-exports.testVirtHomogeneous = function testVirtHomogeneous(test) {
+/*exports.testVirtHomogeneous = */ function testVirtHomogeneous(test) {
   var wy = new wmsy.WmsyDomain({id: "virt-same", domain: "wl-v-same"});
   var kidHelpers = makeKidHelpers();
   var expectKids = kidHelpers.expectKids, checkKids = kidHelpers.checkKids;
@@ -433,3 +439,5 @@ exports.testVirtHeterogeneous = function testVirtHeterogeneous(test) {
 
 };
 */
+
+}); // end require.def

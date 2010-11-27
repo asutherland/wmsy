@@ -32,7 +32,11 @@
 *
 ****************************** END LICENSE BLOCK ******************************/
 
-var DecisionSpace = require("wmsy/decision-space").DecisionSpace;
+require.def("wmsy-tests/test-decision-space",
+            ["wmsy/decision-space", "exports"],
+            function($dspace, exports) {
+
+var DecisionSpace = $dspace.DecisionSpace;
 
 exports.testMain = function DecisionSpace_test(test) {
   function teq(a, b) {
@@ -174,5 +178,4 @@ function print(x) {
   console.log(x);
 }
 
-//if (require.main == module)
-//  require("os").exit(require("test").run(exports));
+}); // end require.def

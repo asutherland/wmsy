@@ -32,7 +32,10 @@
 *
 ****************************** END LICENSE BLOCK ******************************/
 
-var WmsyDomain = require("wmsy/wmsy-domain").RawWmsyDomain;
+
+require.def("wmsy-tests/test-css",
+            ["wmsy/wmsy-style", "exports"],
+            function($style, exports) {
 
 /**
  * Test CSS generation by transforming objects.  XXX legacy test, needs fancy.
@@ -46,13 +49,13 @@ exports.testCssBasics = function testCssBasics(test) {
   ];
   const cssPrefix = "z-";
 
-  var domain = new WmsyDomain("test");
+  var domain = new $style.WmsyStyleBundle("test");
 
   for (var i = 0; i < cssMapifications.length; i++) {
     var testObj = cssMapifications[i][0];
     var expected = cssMapifications[i][1];
 
-    var blobs = domain._styleChew(testObj, cssPrefix);
+    var blobs = domain.styleChew(testObj, cssPrefix);
     test.assertEqual(blobs.length, 1);
     var blob = blobs[0].replace("\n", "", "g")
                        .replace(/ +/g, " ")
@@ -60,3 +63,5 @@ exports.testCssBasics = function testCssBasics(test) {
     test.assertEqual(expected, blob);
   }
 };
+
+}); // end require.def
