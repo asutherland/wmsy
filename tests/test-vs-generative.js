@@ -40,10 +40,12 @@ require.def("wmsy-tests/test-vs-generative",
             function($vs_array, exports) {
 
 /**
+ * XXX generative needs to be brought up-to-speed with viewslice changes.
+ *
  * Test the general workyness of the generative view slice with ordered key
  *  space with simple translate and scale operation.
  */
-exports.seekKeyBased = function(test) {
+/*exports.seekKeyBased =*/ function seekKeyBased(test) {
   function valToKey(val) {
     return (val - 10) * 2;
   }

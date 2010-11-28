@@ -67,7 +67,7 @@ exports.testFullSpan = function(test) {
  */
 exports.testPartialSpanBasics = function(test) {
   var list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  var splicedIn = null;
+  var splicedIn = null, splicedex = null;
   var listener = {
     didSeek: function(aItems, aMoreExpected, aSlice) {
       this.gotDidSeek = true;
@@ -77,10 +77,14 @@ exports.testPartialSpanBasics = function(test) {
     },
     didSplice: function(aIndex, aHowMany, aItems, aRequested, aMoreExpected,
                         aSlice) {
+      splicedex = aIndex;
       splicedIn = aItems;
     },
     gotDidSeek: false,
   };
+  function reset() {
+    splicedIn = splicedex = null;
+  }
 
   var slice = new vst.ArrayViewSlice(list, listener);
   slice.seek(6, 2, 2);
@@ -93,6 +97,7 @@ exports.testPartialSpanBasics = function(test) {
 
   // grow firstwards within bounds
   slice.grow(-2);
+  test.assertEqual(splicedex, 0);
   test.assertEqual(splicedIn.length, 2, "lowgrow size");
   test.assertEqual(splicedIn.toString(), [2, 3].toString(), "lowgrow contents");
   test.assert(!slice.atFirst);
@@ -104,9 +109,10 @@ exports.testPartialSpanBasics = function(test) {
   test.assertEqual(slice.translateIndex(1), 3, "translate");
   test.assertEqual(slice.translateIndex(6), 8, "translate");
 
-  splicedIn = null;
+  reset();
   // grow lastwards within bounds
   slice.grow(1);
+  test.assertEqual(splicedex, 7);
   test.assertEqual(splicedIn.length, 1, "higrow size");
   test.assertEqual(splicedIn.toString(), [9].toString(), "higrow contents");
   test.assert(!slice.atFirst);
@@ -115,9 +121,10 @@ exports.testPartialSpanBasics = function(test) {
                    [2, 3, 4, 5, 6, 7, 8, 9].toString(),
                    "highgrow liveList");
 
-  splicedIn = null;
+  reset();
   // grow firstwards to the limit
   slice.grow(-2);
+  test.assertEqual(splicedex, 0);
   test.assertEqual(splicedIn.length, 2, "lowgrow size");
   test.assertEqual(splicedIn.toString(), [0, 1].toString(), "lowgrow contents");
   test.assert(slice.atFirst);
@@ -126,9 +133,10 @@ exports.testPartialSpanBasics = function(test) {
                    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].toString(),
                    "lowgrow liveList");
 
-  splicedIn = null;
+  reset();
   // grow lastwards to the limit
   slice.grow(1);
+  test.assertEqual(splicedex, 10);
   test.assertEqual(splicedIn.length, 1, "higrow size");
   test.assertEqual(splicedIn.toString(), [10].toString(), "higrow contents");
   test.assert(slice.atFirst);
@@ -249,51 +257,146 @@ exports.testSeekKeyBased = function(test) {
 };
 
 exports.testExternalChangesAndNoteRanges = function(test) {
+  // -- start out with a blank list
   var list = [];
-  var splicedIn = null;
+  var spliced = null, splicedex = null, delcount = null;
   var listener = {
     didSeek: function(aItems, aMoreExpected, aSlice) {
-      this.gotDidSeek = true;
-      test.assertEqual(aItems.length, 5, "list length");
-      test.assertEqual(aItems.toString(), [4, 5, 6, 7, 8].toString(),
-                       "list contents");
+      spliced = aItems;
     },
     didSplice: function(aIndex, aHowMany, aItems, aRequested, aMoreExpected,
                         aSlice) {
-      splicedIn = aItems;
+      splicedex = aIndex;
+      delcount = aHowMany;
+      spliced = aItems;
     },
-    gotDidSeek: false,
   };
+  function reset() {
+    spliced = splicedex = delcount = null;
+  }
 
+  var slice = new vst.ArrayViewSlice(list, listener);
+  slice.seek(0);
+  test.assertSamey(spliced, []);
   test.assert(slice.atFirst);
   test.assert(slice.atLast);
 
+  // -- build up abcde incrementally
+  reset();
   slice.mutateSplice(0, 0, "c");
+  test.assertSamey(spliced, ["c"]);
+  test.assertSamey(slice.liveList, ["c"]);
+  test.assertEqual(slice.translateIndex(0), 0);
   test.assert(slice.atFirst);
   test.assert(slice.atLast);
 
+  reset();
   slice.mutateSplice(0, 0, "a");
+  test.assertSamey(spliced, ["a"]);
+  test.assertSamey(slice.liveList, ["a", "c"]);
+  test.assertEqual(slice.translateIndex(0), 0);
+  test.assertEqual(slice.translateIndex(1), 1);
   test.assert(slice.atFirst);
   test.assert(slice.atLast);
 
+  reset();
   slice.mutateSplice(undefined, 0, "e");
+  test.assertSamey(spliced, ["e"]);
+  test.assertSamey(slice.liveList, ["a", "c", "e"]);
   test.assert(slice.atFirst);
   test.assert(slice.atLast);
 
-  slice.mutateSplice(1, 0, "b");
+  reset();
+  // also try postSplice, since its code path differs slightly
+  list.splice(1, 0, "b");
+  slice.postSplice(1, 0);
+  test.assertSamey(spliced, ["b"]);
+  test.assertSamey(slice.liveList, ["a", "b", "c", "e"]);
   test.assert(slice.atFirst);
   test.assert(slice.atLast);
 
+  reset();
   slice.mutateSplice(3, 0, "d");
+  test.assertSamey(spliced, ["d"]);
+  test.assertSamey(slice.liveList, ["a", "b", "c", "d", "e"]);
+  test.assertEqual(slice.translateIndex(2), 2);
+  test.assertEqual(slice.translateIndex(3), 3);
   test.assert(slice.atFirst);
   test.assert(slice.atLast);
 
+  // -- use noteRanges to shrink our visibility
+  reset();
+  slice.noteRanges(1, 1, 5, 5);
+  test.assertEqual(splicedex, 0);
+  test.assertEqual(delcount, 1);
+  test.assertEqual(spliced, null);
+  reset();
   slice.noteRanges(1, 1, 4, 4);
+  test.assertEqual(splicedex, 4);
+  test.assertEqual(delcount, 1);
+  test.assertEqual(spliced, null);
+  test.assertSamey(slice.liveList, ["b", "c", "d"], "noteRanges");
+  test.assertEqual(slice.translateIndex(0), 1);
+  test.assertEqual(slice.translateIndex(1), 2);
+  test.assertEqual(slice.translateIndex(2), 3);
   test.assert(!slice.atFirst);
   test.assert(!slice.atLast);
 
+  // -- add stuff outside our visibility
+  reset();
+  slice.mutateSplice(0, 0, "(");
+  test.assertEqual(spliced, null);
+  test.assertSamey(slice.liveList, ["b", "c", "d"]);
+  test.assertEqual(slice.translateIndex(0), 2);
+  test.assertEqual(slice.translateIndex(1), 3);
+  test.assertEqual(slice.translateIndex(2), 4);
+  test.assertSamey(list, ["(", "a", "b", "c", "d", "e"]);
 
+  reset();
+  slice.mutateSplice(undefined, 0, ")");
+  test.assertEqual(spliced, null);
+  test.assertSamey(slice.liveList, ["b", "c", "d"]);
+  test.assertEqual(slice.translateIndex(0), 2);
+  test.assertEqual(slice.translateIndex(1), 3);
+  test.assertEqual(slice.translateIndex(2), 4);
+  test.assertSamey(list, ["(", "a", "b", "c", "d", "e", ")"]);
 
+  // -- add stuff inside our visibility
+  reset();
+  slice.mutateSplice(3, 0, "bc");
+  test.assertSamey(spliced, ["bc"]);
+  test.assertSamey(slice.liveList, ["b", "bc", "c", "d"]);
+  test.assertEqual(slice.translateIndex(0), 2);
+  test.assertEqual(slice.translateIndex(1), 3);
+  test.assertSamey(list, ["(", "a", "b", "bc", "c", "d", "e", ")"]);
+
+  // -- delete stuff inside our visibility
+  reset();
+  slice.mutateSplice(4, 1);
+  test.assertSamey(spliced, []);
+  test.assertSamey(slice.liveList, ["b", "bc", "d"]);
+  test.assertEqual(slice.translateIndex(1), 3);
+  test.assertEqual(slice.translateIndex(2), 4);
+  test.assertSamey(list, ["(", "a", "b", "bc", "d", "e", ")"]);
+
+  // -- delete stuff outside our visibility
+  reset();
+  slice.mutateSplice(1, 1);
+  test.assertEqual(spliced, null);
+  test.assertSamey(slice.liveList, ["b", "bc", "d"]);
+  test.assertEqual(slice.translateIndex(1), 2);
+  test.assertEqual(slice.translateIndex(2), 3);
+  test.assertSamey(list, ["(", "b", "bc", "d", "e", ")"]);
+
+  // important edge case check! removing at the exclusive threshold does not
+  //  shrink our range or generate a notification!
+  reset();
+  slice.mutateSplice(4, 1);
+  test.assertEqual(spliced, null);
+  test.assertSamey(slice.liveList, ["b", "bc", "d"]);
+  test.assertEqual(slice.translateIndex(1), 2);
+  test.assertEqual(slice.translateIndex(2), 3);
+  test.assertSamey(list, ["(", "b", "bc", "d", ")"]);
 };
 
 }); // end require.def

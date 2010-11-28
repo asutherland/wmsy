@@ -43,7 +43,9 @@ function alphaClassify(s) {
   return s[0].toLocaleUpperCase();
 }
 function alphaGen(pre, post) {
-  return post[0].toLocaleUpperCase();
+  if (post !== undefined)
+    return post[0].toLocaleUpperCase();
+  return "!";
 }
 var alphaSliceDef = {
   classifier: alphaClassify,
@@ -51,11 +53,9 @@ var alphaSliceDef = {
 };
 
 
-function setupAlphaCheck(test) {
-}
-
 /**
- * Test that a full-span seek produces correct behaviour.
+ * Test that a full-span seek results in the expected fully processed result.
+ *  Try with all first/last settings.
  */
 exports.testFullSeek = function(test) {
   var list = ["Aa", "Ab", "Ba", "Ca", "Cd"];
@@ -67,35 +67,237 @@ exports.testFullSeek = function(test) {
     },
     heardSeek: false,
   };
+  function reset() {
+    listener.heardSeek = false;
+  }
 
+  // -- defaults (first: yes, last: no)
   var rawSlice = new $vsa.ArrayViewSlice(list, listener);
   var interpSlice = new $vsi.DecoratingInterposingViewSlice(
-                      rawSlice, alphaSliceDef);
+                          rawSlice, alphaSliceDef);
+  interpSlice.seek(0);
+  test.assert(listener.heardSeek);
+  test.assert(interpSlice.atFirst);
+  test.assert(interpSlice.atLast);
+
+  // -- no, no
+  expectedList = ["Aa", "Ab", "B", "Ba", "C", "Ca", "Cd"];
+  reset();
+  rawSlice = new $vsa.ArrayViewSlice(list, listener);
+  interpSlice = new $vsi.DecoratingInterposingViewSlice(
+                  rawSlice,
+                  {
+                    classifier: alphaClassify,
+                    maker: alphaGen,
+                    makeFirst: false,
+                    makeLast: false,
+                  });
+  interpSlice.seek(0);
+  test.assert(listener.heardSeek);
+  test.assert(interpSlice.atFirst);
+  test.assert(interpSlice.atLast);
+
+  // -- no, yes
+  expectedList = ["Aa", "Ab", "B", "Ba", "C", "Ca", "Cd", "!"];
+  reset();
+  rawSlice = new $vsa.ArrayViewSlice(list, listener);
+  interpSlice = new $vsi.DecoratingInterposingViewSlice(
+                  rawSlice,
+                  {
+                    classifier: alphaClassify,
+                    maker: alphaGen,
+                    makeFirst: false,
+                    makeLast: true,
+                  });
+  interpSlice.seek(0);
+  test.assert(listener.heardSeek);
+  test.assert(interpSlice.atFirst);
+  test.assert(interpSlice.atLast);
+
+  // -- yes, yes
+  expectedList = ["A", "Aa", "Ab", "B", "Ba", "C", "Ca", "Cd", "!"];
+  reset();
+  rawSlice = new $vsa.ArrayViewSlice(list, listener);
+  interpSlice = new $vsi.DecoratingInterposingViewSlice(
+                  rawSlice,
+                  {
+                    classifier: alphaClassify,
+                    maker: alphaGen,
+                    makeFirst: true,
+                    makeLast: true,
+                  });
   interpSlice.seek(0);
   test.assert(listener.heardSeek);
   test.assert(interpSlice.atFirst);
   test.assert(interpSlice.atLast);
 };
 
-exports.testPartialSeek = function(test) {
+/**
+ * Perform a partial seek, then incrementally grow until we hit the boundaries.
+ *  Perform translateIndex a few times during the process to verify it is also
+ *  adapting correctly.
+ */
+exports.testPartialSeekAndGrowAndTranslate = function(test) {
+  var list = ["Aa", "Ab", "Ba", "Ca", "Cd"];
+  var spliced = null, splicedex = null;
+  var listener = {
+    didSeek: function(aItems, aMoreExpected, aSlice) {
+      spliced = aItems;
+    },
+    didSplice: function(aIndex, aHowMany, aItems, aRequested, aMoreExpected,
+                        aSlice) {
+      splicedex = aIndex;
+      spliced = aItems;
+    },
+  };
+  function reset() {
+    spliced = splicedex = null;
+  }
+
+  var rawSlice = new $vsa.ArrayViewSlice(list, listener);
+  var slice = new $vsi.DecoratingInterposingViewSlice(rawSlice, alphaSliceDef);
+
+  reset();
   slice.seek(1, 0, 0);
+  test.assertSamey(spliced, ["Ab"]);
+  test.assertSamey(slice.liveList, ["Ab"]);
+  test.assertEqual(slice.translateIndex(0), 1);
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
 
-  slice.grow(-1);
-
+  reset();
   slice.grow(1);
+  test.assertEqual(splicedex, 1);
+  test.assertSamey(spliced, ["B", "Ba"]);
+  test.assertSamey(slice.liveList, ["Ab", "B", "Ba"]);
+  test.assertEqual(slice.translateIndex(0), 1);
+  test.assertEqual(slice.translateIndex(1), 2);
+  test.assertEqual(slice.translateIndex(2), 2);
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
 
+  reset();
+  slice.grow(-1);
+  test.assertEqual(splicedex, 0);
+  test.assertSamey(spliced, ["A", "Aa"]);
+  test.assertSamey(slice.liveList, ["A", "Aa", "Ab", "B", "Ba"]);
+  test.assertEqual(slice.translateIndex(0), 0);
+  test.assertEqual(slice.translateIndex(1), 0);
+  test.assertEqual(slice.translateIndex(2), 1);
+  test.assertEqual(slice.translateIndex(3), 2);
+  test.assertEqual(slice.translateIndex(4), 2);
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
+
+  reset();
+  slice.grow(1);
+  test.assertEqual(splicedex, 5);
+  test.assertSamey(spliced, ["C", "Ca"]);
+  test.assertSamey(slice.liveList, ["A", "Aa", "Ab", "B", "Ba", "C", "Ca"]);
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
+
+  reset();
+  slice.grow(1);
+  test.assertEqual(splicedex, 7);
+  test.assertSamey(spliced, ["Cd"]);
+  test.assertSamey(slice.liveList,
+                   ["A", "Aa", "Ab", "B", "Ba", "C", "Ca", "Cd"]);
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
 };
 
 exports.testMultipleSeeks = function(test) {
-};
+  var list = ["Aa", "Ab", "Ba", "Ca", "Cd"];
+  var spliced = null, splicedex = null;
+  var listener = {
+    didSeek: function(aItems, aMoreExpected, aSlice) {
+      spliced = aItems;
+    },
+    didSplice: function(aIndex, aHowMany, aItems, aRequested, aMoreExpected,
+                        aSlice) {
+      splicedex = aIndex;
+      spliced = aItems;
+    },
+  };
+  function reset() {
+    spliced = splicedex = null;
+  }
 
-exports.testTranslateIndex = function(test) {
-};
+  var rawSlice = new $vsa.ArrayViewSlice(list, listener);
+  var slice = new $vsi.DecoratingInterposingViewSlice(rawSlice, alphaSliceDef);
 
-exports.testGrow = function(test) {
+  reset();
+  slice.seek(1, 1, 1);
+  test.assertSamey(spliced, ["A", "Aa", "Ab", "B", "Ba"]);
+  test.assertSamey(slice.liveList, ["A", "Aa", "Ab", "B", "Ba"]);
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
+
+  reset();
+  slice.seek(1, 2, 2);
+  test.assertSamey(spliced, ["A", "Aa", "Ab", "B", "Ba", "C", "Ca"]);
+  test.assertSamey(slice.liveList, ["A", "Aa", "Ab", "B", "Ba", "C", "Ca"]);
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
+
+  reset();
+  slice.seek(2, 1, 2);
+  test.assertSamey(spliced, ["Ab", "B", "Ba", "C", "Ca", "Cd"]);
+  test.assertSamey(slice.liveList, ["Ab", "B", "Ba", "C", "Ca", "Cd"]);
+  test.assert(!slice.atFirst);
+  test.assert(slice.atLast);
+
+  reset();
+  slice.seek(2, 2, 0);
+  test.assertSamey(spliced, ["A", "Aa", "Ab", "B", "Ba"]);
+  test.assertSamey(slice.liveList, ["A", "Aa", "Ab", "B", "Ba"]);
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
+
+  reset();
+  slice.seek(2, 10, 0);
+  test.assertSamey(spliced, ["A", "Aa", "Ab", "B", "Ba"]);
+  test.assertSamey(slice.liveList, ["A", "Aa", "Ab", "B", "Ba"]);
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
 };
 
 exports.testNoteRanges = function(test) {
+  var list = ["Aa", "Ab", "Ba", "Ca", "Cd"];
+  var spliced = null, splicedex = null, delcount = null;
+  var listener = {
+    didSeek: function(aItems, aMoreExpected, aSlice) {
+      spliced = aItems;
+    },
+    didSplice: function(aIndex, aHowMany, aItems, aRequested, aMoreExpected,
+                        aSlice) {
+      splicedex = aIndex;
+      spliced = aItems;
+      delcount = aHowMany;
+    },
+  };
+  function reset() {
+    spliced = splicedex = delcount = null;
+  }
+
+  var rawSlice = new $vsa.ArrayViewSlice(list, listener);
+  var slice = new $vsi.DecoratingInterposingViewSlice(rawSlice, alphaSliceDef);
+
+  slice.seek(0);
+  // base casefor sanity; already tested by previous test cases...
+  test.assertSamey(spliced, ["A", "Aa", "Ab", "B", "Ba", "C", "Ca", "Cd"]);
+
+  // -- trying to chop off just the "A" should not do anything
+  slice.noteRanges();
+
+  // -- chopping off Aa should work though.
+
+  // -- chopping Cd off the end should work
+
+  // -- chopping Ca off the end should take C with it
+
+  
 };
 
 exports.testExternalChanges = function(test) {
