@@ -41,6 +41,13 @@ require.def("wmsy-tests/test-bind",
             ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
             function(wmsy, pth, exports) {
 
+var IMAGE_DATA_URL_REDPIX = "data:image/png;base64," +
+"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAAXNSR0IArs4c6QAAAANQTFRF/wAA"+
+"GeIJNwAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=";
+var IMAGE_DATA_URL_BLUEPIX = "data:image/png;base64," +
+"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAAXNSR0IArs4c6QAAAANQTFRFAAD/"+
+"injSVwAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=";
+
 /**
  * Exercise the various binding methods to check that they all work as expected.
  *  We specifically want to regression check that any bindings created in a loop
@@ -68,7 +75,7 @@ exports.testWmsyBind = function testWmsyBind(test) {
       //  binding into existence which kills their children.
       decoratedFlow: wy.flow({flowKid: {}}, {attr: "a1"}),
       decoratedBlock: wy.block({blockKid: {}}, {attr: "a1"}),
-      image: wy.bindImage("ma1", {attr: "ma2"}),
+      image: wy.bindImage("img", {attr: "ma2"}),
     }
   });
 
@@ -76,6 +83,7 @@ exports.testWmsyBind = function testWmsyBind(test) {
     t1: "text1",
     a1: "attr1",
     ma1: "abba1", ma2: "gabba1",
+    img: IMAGE_DATA_URL_REDPIX,
     t2: "sol1",
     c1: {
       a: "foo1",
@@ -89,6 +97,7 @@ exports.testWmsyBind = function testWmsyBind(test) {
     t1: "text2",
     a1: "attr2",
     ma1: "abba2", ma2: "gabba2",
+    img: IMAGE_DATA_URL_BLUEPIX,
     t2: "sol2",
     c1: {
       a: "foo2",
@@ -183,7 +192,8 @@ exports.testWmsyBind = function testWmsyBind(test) {
     // image
     test.assertEqual(bOne.image_element.nodeType, 1, "be an element");
     test.assertEqual(bOne.image_element.tagName, "IMG", "be an img element");
-    test.assertEqual(bOne.image_element.getAttribute("src"), "abba1",
+    test.assertEqual(bOne.image_element.getAttribute("src"),
+                     IMAGE_DATA_URL_REDPIX,
                      "have the right src attribute value");
     test.assertEqual(bOne.image_element.getAttribute("attr"), "gabba1",
                      "have the right extra attribute value");

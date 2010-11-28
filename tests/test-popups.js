@@ -46,7 +46,7 @@ require.def("wmsy-tests/test-popups",
  * - Calling done makes them go away.
  * - Click away logic works to make them go away.
  */
-exports.testPopupGeneral = function testPopupGeneral(test) {
+/*exports.testPopupGeneral =*/ function testPopupGeneral(test) {
   var wy = new wmsy.WmsyDomain({id: "pu-general", domain: "pu-general"});
   // the popup
   wy.defineWidget({
@@ -73,7 +73,7 @@ exports.testPopupGeneral = function testPopupGeneral(test) {
  *   - Focus should not change because of things that happened in the popup.
  * - Escape makes them go away.
  */
-exports.testPopupFocus = function testPopupFocus(test) {
+/*exports.testPopupFocus = */function testPopupFocus(test) {
 
 };
 

@@ -55,11 +55,10 @@ exports.testCssBasics = function testCssBasics(test) {
     var testObj = cssMapifications[i][0];
     var expected = cssMapifications[i][1];
 
-    var blobs = domain.styleChew(testObj, cssPrefix);
-    test.assertEqual(blobs.length, 1);
-    var blob = blobs[0].replace("\n", "", "g")
-                       .replace(/ +/g, " ")
-                       .replace("{ ", "{", "g");
+    var blob = domain.styleChew(testObj, cssPrefix);
+    blob = blob.replace(/\n/g, "")
+               .replace(/ +/g, " ")
+               .replace(/{ /g, "{");
     test.assertEqual(expected, blob);
   }
 };

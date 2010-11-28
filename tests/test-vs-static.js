@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-require.def("wmsy-tests/test-vs-generative",
+require.def("wmsy-tests/test-vs-static",
             ["wmsy/viewslice-static", "exports"],
             function(vst, exports) {
 
@@ -45,9 +45,8 @@ require.def("wmsy-tests/test-vs-generative",
 exports.testFullSpan = function(test) {
   var list = [1, 2, 3, 4];
   var listener = {
-    didSeek: function(aBaseIndex, aItems) {
+    didSeek: function(aItems, aMoreExpected, aSlice) {
       this.gotDidSeek = true;
-      test.assertEqual(aBaseIndex, 0, "base should be at zero");
       test.assertEqual(aItems.length, list.length, "list lengths");
       test.assertEqual(aItems.toString(), list.toString(), "list contents");
     },
@@ -56,6 +55,11 @@ exports.testFullSpan = function(test) {
   var slice = new vst.StaticViewSlice(list, listener);
   slice.seek(0);
   test.assert(listener.gotDidSeek);
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
+  test.assertEqual(slice.translateIndex(0), 0, "translate");
+  test.assertEqual(slice.translateIndex(1), 1, "translate");
+  test.assertEqual(slice.translateIndex(3), 3, "translate");
 };
 
 /**
@@ -63,13 +67,17 @@ exports.testFullSpan = function(test) {
  */
 exports.testPartialSpanBasics = function(test) {
   var list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  var splicedIn = null;
   var listener = {
-    didSeek: function(aBaseIndex, aItems) {
+    didSeek: function(aItems, aMoreExpected, aSlice) {
       this.gotDidSeek = true;
-      test.assertEqual(aBaseIndex, 4, "base should be at 3");
       test.assertEqual(aItems.length, 5, "list length");
       test.assertEqual(aItems.toString(), [4, 5, 6, 7, 8].toString(),
                        "list contents");
+    },
+    didSplice: function(aIndex, aHowMany, aItems, aRequested, aMoreExpected,
+                        aSlice) {
+      splicedIn = aItems;
     },
     gotDidSeek: false,
   };
@@ -77,42 +85,63 @@ exports.testPartialSpanBasics = function(test) {
   var slice = new vst.StaticViewSlice(list, listener);
   slice.seek(6, 2, 2);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(slice.availLow, 4, "low avail");
-  test.assertEqual(slice.availHigh, 2, "high avail");
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
+  test.assertEqual(slice.translateIndex(0), 4, "translate");
+  test.assertEqual(slice.translateIndex(1), 5, "translate");
+  test.assertEqual(slice.translateIndex(4), 8, "translate");
 
-  // grow on the bottom within bounds
-  var growed = slice.requestKnown(-2);
-  test.assertEqual(growed.length, 2, "lowgrow size");
-  test.assertEqual(growed.toString(), [2, 3].toString(), "lowgrow contents");
-  test.assertEqual(slice.availLow, 2, "low avail");
-  test.assertEqual(slice.availHigh, 2, "high avail");
+  // grow firstwards within bounds
+  slice.grow(-2);
+  test.assertEqual(splicedIn.length, 2, "lowgrow size");
+  test.assertEqual(splicedIn.toString(), [2, 3].toString(), "lowgrow contents");
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
+  test.assertEqual(slice.liveList.toString(),
+                   [2, 3, 4, 5, 6, 7, 8].toString(),
+                   "lowgrow liveList");
+  test.assertEqual(slice.translateIndex(0), 2, "translate");
+  test.assertEqual(slice.translateIndex(1), 3, "translate");
+  test.assertEqual(slice.translateIndex(6), 8, "translate");
 
-  // grow on the top within bounds
-  growed = slice.requestKnown(1);
-  test.assertEqual(growed.length, 1, "higrow size");
-  test.assertEqual(growed.toString(), [9].toString(), "higrow contents");
-  test.assertEqual(slice.availLow, 2, "low avail");
-  test.assertEqual(slice.availHigh, 1, "high avail");
+  splicedIn = null;
+  // grow lastwards within bounds
+  slice.grow(1);
+  test.assertEqual(splicedIn.length, 1, "higrow size");
+  test.assertEqual(splicedIn.toString(), [9].toString(), "higrow contents");
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
+  test.assertEqual(slice.liveList.toString(),
+                   [2, 3, 4, 5, 6, 7, 8, 9].toString(),
+                   "highgrow liveList");
 
-  // grow on the bottom to the limit
-  growed = slice.requestKnown(-2);
-  test.assertEqual(growed.length, 2, "lowgrow size");
-  test.assertEqual(growed.toString(), [0, 1].toString(), "lowgrow contents");
-  test.assertEqual(slice.availLow, 0, "low avail");
-  test.assertEqual(slice.availHigh, 1, "high avail");
+  splicedIn = null;
+  // grow firstwards to the limit
+  slice.grow(-2);
+  test.assertEqual(splicedIn.length, 2, "lowgrow size");
+  test.assertEqual(splicedIn.toString(), [0, 1].toString(), "lowgrow contents");
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
+  test.assertEqual(slice.liveList.toString(),
+                   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].toString(),
+                   "lowgrow liveList");
 
-  // grow on the top to the limit
-  growed = slice.requestKnown(1);
-  test.assertEqual(growed.length, 1, "higrow size");
-  test.assertEqual(growed.toString(), [10].toString(), "higrow contents");
-  test.assertEqual(slice.availLow, 0, "low avail");
-  test.assertEqual(slice.availHigh, 0, "high avail");
+  splicedIn = null;
+  // grow lastwards to the limit
+  slice.grow(1);
+  test.assertEqual(splicedIn.length, 1, "higrow size");
+  test.assertEqual(splicedIn.toString(), [10].toString(), "higrow contents");
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
+  test.assertEqual(slice.liveList.toString(),
+                   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].toString(),
+                   "highgrow liveList");
 };
 
 /**
  * Test seeking logic (and reverse mapping) with a key-based ordering.
  */
-exports.seekKeyBased = function(test) {
+exports.testSeekKeyBased = function(test) {
   function nameFetcher(o) {
     return o;
   }
@@ -120,14 +149,13 @@ exports.seekKeyBased = function(test) {
     return a.localeCompare(b);
   }
   var listener = {
-    didSeek: function(aBaseIndex, aItems) {
+    didSeek: function(aItems, aMoreExpected, aSlice) {
       this.gotDidSeek = true;
-      listener.base = aBaseIndex;
-      listener.items = aItems;
+      this.items = aItems;
     },
     gotDidSeek: false,
     reset: function() {
-      this.base = this.items = this.gotDidSeek = null;
+      this.items = this.gotDidSeek = null;
     },
   };
 
@@ -137,81 +165,135 @@ exports.seekKeyBased = function(test) {
 
   slice.seek("omegc", 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 1, "base should be at 1");
   test.assertEqual(listener.items.length, 3, "list length");
   test.assertEqual(listener.items.toString(),
                    ["bobo", "omegb", "philharmonia"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 1, "low avail");
-  test.assertEqual(slice.availHigh, 2, "high avail");
+  test.assertEqual(slice.liveList.toString(),
+                   ["bobo", "omegb", "philharmonia"].toString(),
+                   "list contents");
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
+  test.assertEqual(slice.translateIndex(0), "bobo", "translate");
+  test.assertEqual(slice.translateIndex(1), "omegb", "translate");
+  test.assertEqual(slice.translateIndex(2), "philharmonia", "translate");
   listener.reset();
-
-  // searchKnown for known values should work...
-  test.assertEqual(slice.searchKnown("bobo"), 1, "searchKnown");
-  test.assertEqual(slice.searchKnown("omegb"), 2, "searchKnown");
-  test.assertEqual(slice.searchKnown("philharmonia"), 3, "searchKnown");
-  // searchKnown for values outside our known range should end up clamping to
-  //  the buffered values...
-  test.assertEqual(slice.searchKnown("a"), 1, "searchKnown");
-  test.assertEqual(slice.searchKnown("zzzz"), 3, "searchKnown");
-
 
   slice.seek("omegb", 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 1, "base should be at 1");
   test.assertEqual(listener.items.length, 3, "list length");
   test.assertEqual(listener.items.toString(),
                    ["bobo", "omegb", "philharmonia"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 1, "low avail");
-  test.assertEqual(slice.availHigh, 2, "high avail");
+  test.assertEqual(slice.liveList.toString(),
+                   ["bobo", "omegb", "philharmonia"].toString(),
+                   "list contents");
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
   listener.reset();
 
   slice.seek("omega", 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 0, "base should be at 0");
   test.assertEqual(listener.items.length, 3, "list length");
   test.assertEqual(listener.items.toString(),
                    ["alpha", "bobo", "omegb"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 0, "low avail");
-  test.assertEqual(slice.availHigh, 3, "high avail");
+  test.assertEqual(slice.liveList.toString(),
+                   ["alpha", "bobo", "omegb"].toString(),
+                   "list contents");
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
   listener.reset();
 
   slice.seek("philharmonia", 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 2, "base should be at 2");
   test.assertEqual(listener.items.length, 3, "list length");
   test.assertEqual(listener.items.toString(),
                    ["omegb", "philharmonia", "zeta"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 2, "low avail");
-  test.assertEqual(slice.availHigh, 1, "high avail");
+  test.assertEqual(slice.liveList.toString(),
+                   ["omegb", "philharmonia", "zeta"].toString(),
+                   "list contents");
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
   listener.reset();
 
   slice.seek("a", 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 0, "base should be at 0");
   test.assertEqual(listener.items.length, 2, "list length");
   test.assertEqual(listener.items.toString(),
                    ["alpha", "bobo"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 0, "low avail");
-  test.assertEqual(slice.availHigh, 4, "high avail");
+  test.assertEqual(slice.liveList.toString(),
+                   ["alpha", "bobo"].toString(),
+                   "list contents");
+  test.assert(slice.atFirst);
+  test.assert(!slice.atLast);
   listener.reset();
 
   slice.seek("zzzzzzzzz", 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 4, "base should be at 4");
   test.assertEqual(listener.items.length, 2, "list length");
   test.assertEqual(listener.items.toString(),
                    ["zeta", "zoot"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 4, "low avail");
-  test.assertEqual(slice.availHigh, 0, "high avail");
+  test.assertEqual(slice.liveList.toString(),
+                   ["zeta", "zoot"].toString(),
+                   "list contents");
+  test.assert(!slice.atFirst);
+  test.assert(slice.atLast);
 
-  test.assertEqual(slice.translateIndex(2), "omegb", "translate");
+  test.assertEqual(slice.translateIndex(0), "zeta", "translate");
+  test.assertEqual(slice.translateIndex(1), "zoot", "translate");
   listener.reset();
+};
+
+exports.testExternalChangesAndNoteRanges = function(test) {
+  var list = [];
+  var splicedIn = null;
+  var listener = {
+    didSeek: function(aItems, aMoreExpected, aSlice) {
+      this.gotDidSeek = true;
+      test.assertEqual(aItems.length, 5, "list length");
+      test.assertEqual(aItems.toString(), [4, 5, 6, 7, 8].toString(),
+                       "list contents");
+    },
+    didSplice: function(aIndex, aHowMany, aItems, aRequested, aMoreExpected,
+                        aSlice) {
+      splicedIn = aItems;
+    },
+    gotDidSeek: false,
+  };
+
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
+
+  slice.mutateSplice(0, 0, "c");
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
+
+  slice.mutateSplice(0, 0, "a");
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
+
+  slice.mutateSplice(undefined, 0, "e");
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
+
+  slice.mutateSplice(1, 0, "b");
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
+
+  slice.mutateSplice(3, 0, "d");
+  test.assert(slice.atFirst);
+  test.assert(slice.atLast);
+
+  slice.noteRanges(1, 1, 4, 4);
+  test.assert(!slice.atFirst);
+  test.assert(!slice.atLast);
+
+
+
 };
 
 }); // end require.def

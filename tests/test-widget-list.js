@@ -127,7 +127,6 @@ function baseEnsureVisibleSimple(test, aVertical) {
     function goDude(i, aDoFocus) {
       dude = idSpace.findBindingsUsingId("value", i)[0];
       if (aDoFocus === undefined || aDoFocus) {
-        console.log("ensuring", i, "is visible");
         dude.ensureVisible();
       }
     }

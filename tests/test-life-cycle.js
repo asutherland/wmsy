@@ -61,7 +61,7 @@ exports.testWidgetCycle = function testWidgetCycle(test) {
       b: wy.widget({type: "child"}, "b"),
     },
     impl: {
-      postInit: function() {
+      postInitUpdate: function() {
         this.obj.updateCount = 0;
       },
       update: function() {
@@ -85,7 +85,7 @@ exports.testWidgetCycle = function testWidgetCycle(test) {
       z: wy.widget({type: "child"}, "z"),
     },
     impl: {
-      postInit: function() {
+      postInitUpdate: function() {
         this.obj.updateCount = 0;
       },
       update: function() {
@@ -107,7 +107,7 @@ exports.testWidgetCycle = function testWidgetCycle(test) {
     },
     structure: {},
     impl: {
-      postInit: function() {
+      postInitUpdate: function() {
         this.obj.updateCount = 0;
       },
       update: function() {
@@ -269,7 +269,7 @@ exports.testWidgetListCycle = function testWidgetListCycle(test) {
     test.assertEqual(objs.a.liveness, 0, "a still dead");
     test.assertEqual(objs.b.liveness, 0, "b cleared");
     test.assertEqual(objs.c.liveness, 0, "c still dead");
-    test.assertEqual(objs.d.liveness, 0, "d clearedd");
+    test.assertEqual(objs.d.liveness, 0, "d cleared");
 
     // - update() nets an add
     rootObj.foo = [objs.c, objs.d];

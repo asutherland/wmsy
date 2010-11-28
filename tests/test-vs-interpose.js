@@ -61,7 +61,7 @@ exports.testFullSeek = function(test) {
   var list = ["Aa", "Ab", "Ba", "Ca", "Cd"];
   var expectedList = ["A", "Aa", "Ab", "B", "Ba", "C", "Ca", "Cd"];
   var listener = {
-    didSeek: function(aBaseIndex, aItems) {
+    didSeek: function(aItems, aMoreExpected, aSlice) {
       test.assertEqual(aItems.toString(), expectedList.toString());
       this.heardSeek = true;
     },
@@ -73,8 +73,8 @@ exports.testFullSeek = function(test) {
                       rawSlice, alphaSliceDef);
   interpSlice.seek(0);
   test.assert(listener.heardSeek);
-  test.assert(interpSlice.atTop);
-  test.assert(interpSlice.atBottom);
+  test.assert(interpSlice.atFirst);
+  test.assert(interpSlice.atLast);
 };
 
 exports.testPartialSeek = function(test) {

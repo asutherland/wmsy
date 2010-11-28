@@ -567,7 +567,6 @@ exports.testDeepDownDomains = function testDeepDownDomains(test) {
   };
 
   test.waitUntilDone();
-  test.waitUntilDone();
   pth.makeTestPage(test, gotPage);
   function gotPage(doc, win) {
     var emitter = wy.wrapElement(doc.getElementById("root"));

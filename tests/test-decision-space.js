@@ -45,8 +45,8 @@ exports.testMain = function DecisionSpace_test(test) {
 
   var ds, p;
   function dumpSpace() {
-    print("---");
-    print(JSON.stringify(ds._tree, null, 2));
+    //print("---");
+    //print(JSON.stringify(ds._tree, null, 2));
   }
 
   ds = new DecisionSpace();
