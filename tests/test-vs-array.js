@@ -35,12 +35,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-require.def("wmsy-tests/test-vs-static",
-            ["wmsy/viewslice-static", "exports"],
+require.def("wmsy-tests/test-vs-array",
+            ["wmsy/viewslice-array", "exports"],
             function(vst, exports) {
 
 /**
- * A static view slice on the whole thing should return the whole thing.
+ * An array view slice on the whole thing should return the whole thing.
  */
 exports.testFullSpan = function(test) {
   var list = [1, 2, 3, 4];
@@ -52,7 +52,7 @@ exports.testFullSpan = function(test) {
     },
     gotDidSeek: false,
   };
-  var slice = new vst.StaticViewSlice(list, listener);
+  var slice = new vst.ArrayViewSlice(list, listener);
   slice.seek(0);
   test.assert(listener.gotDidSeek);
   test.assert(slice.atFirst);
@@ -82,7 +82,7 @@ exports.testPartialSpanBasics = function(test) {
     gotDidSeek: false,
   };
 
-  var slice = new vst.StaticViewSlice(list, listener);
+  var slice = new vst.ArrayViewSlice(list, listener);
   slice.seek(6, 2, 2);
   test.assert(listener.gotDidSeek);
   test.assert(!slice.atFirst);
@@ -160,7 +160,7 @@ exports.testSeekKeyBased = function(test) {
   };
 
   var list = ["alpha", "bobo", "omegb", "philharmonia", "zeta", "zoot"];
-  var slice = new vst.StaticViewSlice(list, listener, null,
+  var slice = new vst.ArrayViewSlice(list, listener, null,
                                       nameFetcher, nameComparator);
 
   slice.seek("omegc", 1, 1);

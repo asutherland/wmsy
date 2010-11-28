@@ -36,8 +36,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 require.def("wmsy-tests/test-vs-generative",
-            ["wmsy/viewslice-static", "exports"],
-            function(vst, exports) {
+            ["wmsy/viewslice-array", "exports"],
+            function($vs_array, exports) {
 
 /**
  * Test the general workyness of the generative view slice with ordered key
@@ -82,7 +82,7 @@ exports.seekKeyBased = function(test) {
     },
   };
 
-  var slice = new vst.GenerativeViewSlice(
+  var slice = new $vs_array.GenerativeViewSlice(
     genFromVal, 0, 1000, listener, keyToVal, valToKey);
 
   slice.seek(valToKey(0), 1, 1);

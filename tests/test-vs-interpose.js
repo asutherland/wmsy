@@ -36,8 +36,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 require.def("wmsy-tests/test-vs-interpose",
-            ["wmsy/viewslice-static", "wmsy/viewslice-interpose", "exports"],
-            function(vst, vsi, exports) {
+            ["wmsy/viewslice-array", "wmsy/viewslice-interpose", "exports"],
+            function($vsa, $vsi, exports) {
 
 function alphaClassify(s) {
   return s[0].toLocaleUpperCase();
@@ -68,8 +68,8 @@ exports.testFullSeek = function(test) {
     heardSeek: false,
   };
 
-  var rawSlice = new vst.StaticViewSlice(list, listener);
-  var interpSlice = new vsi.DecoratingInterposingViewSlice(
+  var rawSlice = new $vsa.ArrayViewSlice(list, listener);
+  var interpSlice = new $vsi.DecoratingInterposingViewSlice(
                       rawSlice, alphaSliceDef);
   interpSlice.seek(0);
   test.assert(listener.heardSeek);
@@ -78,6 +78,12 @@ exports.testFullSeek = function(test) {
 };
 
 exports.testPartialSeek = function(test) {
+  slice.seek(1, 0, 0);
+
+  slice.grow(-1);
+
+  slice.grow(1);
+
 };
 
 exports.testMultipleSeeks = function(test) {
@@ -90,6 +96,9 @@ exports.testGrow = function(test) {
 };
 
 exports.testNoteRanges = function(test) {
+};
+
+exports.testExternalChanges = function(test) {
 };
 
 }); // end require.def
