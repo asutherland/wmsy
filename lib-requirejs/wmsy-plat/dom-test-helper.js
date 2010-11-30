@@ -14,23 +14,27 @@
 
 require.def("wmsy-plat/dom-test-helper",
   [
-    "exports",
+    "wmsy/platfo",
+    "exports"
   ],
   function(
+    $platfo,
     exports
   ) {
+
+var platform = $platfo.platform;
 
 function makeKeyEvent(doc, aKind, aCharCode, aKeyCode, aHasShift) {
   var win = doc.defaultView;
   var event;
-  try {
+  if (platform === "moz") {
     // gecko
     event = doc.createEvent("KeyEvents");
     event.initKeyEvent(aKind, true, true, win,
                        false, false, aHasShift, false,
                        aKeyCode, aCharCode);
   }
-  catch (ex) {
+  else {
     // webkit
     event = doc.createEvent("Events");
     event.initEvent(aKind, true, true);

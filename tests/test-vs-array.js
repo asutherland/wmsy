@@ -326,13 +326,16 @@ exports.testExternalChangesAndNoteRanges = function(test) {
 
   // -- use noteRanges to shrink our visibility
   reset();
+  // chop one off the bottom
   slice.noteRanges(1, 1, 5, 5);
   test.assertEqual(splicedex, 0);
   test.assertEqual(delcount, 1);
   test.assertEqual(spliced, null);
+  test.assertSamey(slice.liveList, ["b", "c", "d", "e"]);
+  // chop one off the top
   reset();
-  slice.noteRanges(1, 1, 4, 4);
-  test.assertEqual(splicedex, 4);
+  slice.noteRanges(0, 0, 3, 3);
+  test.assertEqual(splicedex, 3);
   test.assertEqual(delcount, 1);
   test.assertEqual(spliced, null);
   test.assertSamey(slice.liveList, ["b", "c", "d"], "noteRanges");
