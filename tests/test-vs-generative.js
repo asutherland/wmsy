@@ -36,8 +36,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 require.def("wmsy-tests/test-vs-generative",
-            ["wmsy/viewslice-array", "exports"],
-            function($vs_array, exports) {
+            ["wmsy/viewslice-generative", "exports"],
+            function($vs_generative, exports) {
 
 /**
  * XXX generative needs to be brought up-to-speed with viewslice changes.
@@ -45,7 +45,7 @@ require.def("wmsy-tests/test-vs-generative",
  * Test the general workyness of the generative view slice with ordered key
  *  space with simple translate and scale operation.
  */
-/*exports.seekKeyBased =*/ function seekKeyBased(test) {
+exports.seekKeyBased = function seekKeyBased(test) {
   function valToKey(val) {
     return (val - 10) * 2;
   }
@@ -72,20 +72,23 @@ require.def("wmsy-tests/test-vs-generative",
   test.assertEqual(genFromVal(1), "#1");
   test.assertEqual(genFromVal(2), "#2");
 
+  var spliced = null;
   var listener = {
-    didSeek: function(aBaseIndex, aItems) {
+    didSeek: function(aItems) {
       this.gotDidSeek = true;
-      listener.base = aBaseIndex;
       listener.items = aItems;
     },
     gotDidSeek: false,
+    didSplice: function(aIndex, aHowMany, aItems) {
+      spliced = aItems;
+    },
     reset: function() {
-      this.base = this.items = this.gotDidSeek = null;
+      spliced = this.base = this.items = this.gotDidSeek = null;
     },
   };
 
-  var slice = new $vs_array.GenerativeViewSlice(
-    genFromVal, 0, 1000, listener, keyToVal, valToKey);
+  var slice = new $vs_generative.GenerativeViewSlice(
+    genFromVal, null, 0, 1000, listener, keyToVal, valToKey);
 
   slice.seek(valToKey(0), 1, 1);
   test.assert(listener.gotDidSeek);
@@ -98,8 +101,8 @@ require.def("wmsy-tests/test-vs-generative",
   test.assertEqual(slice.availHigh, 998, "high avail");
   listener.reset();
 
-  var growed = slice.requestKnown(2);
-  test.assertEqual(growed.toString(),
+  slice.grow(2);
+  test.assertEqual(spliced.toString(),
                    ["#2", "#3"],
                    "grown contents");
 
@@ -120,19 +123,15 @@ require.def("wmsy-tests/test-vs-generative",
   test.assertEqual(listener.items.toString(),
                    ["#998", "#999"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 998, "low avail");
-  test.assertEqual(slice.availHigh, 0, "high avail");
   listener.reset();
 
   slice.seek(valToKey(400), 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 399, "base");
+  test.assertEqual(slice._exposeBaseIndex, 399, "base");
   test.assertEqual(listener.items.length, 3, "list length");
   test.assertEqual(listener.items.toString(),
                    ["#399", "#400", "#401"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 399, "low avail");
-  test.assertEqual(slice.availHigh, 598, "high avail");
   listener.reset();
 
 

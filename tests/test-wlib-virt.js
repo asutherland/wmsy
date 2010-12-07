@@ -59,11 +59,18 @@
 require.def("wmsy-tests/test-wlib-virt",
   [
     "wmsy/wmsy",
+    "wmsy/viewslice-generative",
     "wmsy-plat/page-test-helper",
     "wmsy-plat/dom-test-helper",
     "exports"
   ],
-  function(wmsy, pth, dth, exports) {
+  function(
+    wmsy,
+    $vs_gen,
+    pth,
+    dth,
+    exports
+  ) {
 
 var wheelScrollUp = dth.wheelScrollUp, wheelScrollDown = dth.wheelScrollDown;
 
@@ -228,6 +235,398 @@ function makeKidHelpers() {
   };
 }
 
+/**
+ * Virtual list widget test helper to simplify characterization of the
+ *  assertions.
+ *
+ * We use a very simple identity transform generative view slice to populate
+ *  our contents.
+ */
+function TestHelper(test, doc, win, wy, vertical, async) {
+  this.test = test;
+  this.doc = doc;
+  this.win = win;
+  this.wy = wy;
+  this.vertical = vertical;
+  this.async = async;
+
+  this.wrapped = wy.wrapElement(doc.getElementById("root"));
+  this.curBinding = null;
+
+  this._sliceSetup();
+}
+TestHelper.prototype = {
+  _genSyncFunc: function() {
+  },
+
+  _genAsyncFunc: function() {
+  },
+
+  /**
+   * Kill the binding and reinstantiate it.
+   */
+  _reinit: function() {
+    if (this.curBinding) {
+      this.curBinding.destroy();
+      this.curBinding.domNode.parentNode.removeChild(this.curBinding.domNode);
+    }
+
+    this.slice = new $vs_gen.GenerativeViewSlice(
+                   this.async ? this._genAsyncFunc : this._genSyncFunc,
+                   this.firstKey, this.lastKeyEx, null
+                 );
+
+    this.obj = {items: this.slice};
+    this.wrapped.emit({type: "container", obj: this.obj});
+  },
+
+  /**
+   * Figure out the main keys in use with the backing view slice.
+   */
+  _sliceSetup: function() {
+    this.firstKey = 0;
+    this.lastKey = 99;
+    this.lastKeyEx = this.lastKey + 1;
+    this.middleKey = 50;
+  },
+
+  /**
+   * Get the ordering key for the slice-style index referencing the current
+   *  set of visible items.
+   */
+  visibleKey: function(aIndex) {
+  },
+
+  /**
+   * Get the ordering key for a thing in the pre or post buffer using slice
+   *  indexing.
+   */
+  bufferKey: function(aDir, aIndex) {
+  },
+
+  /**
+   * Nuke the binding and trigger the seek API with the goal of causing the
+   *  first-seek logic to be used rather than the already-seeked logic.
+   */
+  initialSeek: function() {
+  },
+
+  /**
+   * Trigger the seek API, trigger any resulting async requests, and wait for
+   *  all follow-up requests to cease.
+   */
+  seek: function() {
+  },
+
+  /**
+   * Request a scroll, trigger any resulting async requests, and wait for all
+   *  follow-up requests to cease.
+   */
+  scroll: function(aDir, aMag) {
+  },
+
+  /**
+   * Assert that the last operation caused new buffering to occur (or not occur)
+   *  in each direction.
+   */
+  assertBuffered: function() {
+  },
+
+  /**
+   * Assert that the last operation caused (buffered) items to be discarded
+   *  via noteRanges.
+   */
+  assertDiscarded: function() {
+  },
+
+  /**
+   * Assert that the current amount of spare space in each direction is
+   *  approximately of a given buffer-relative size.
+   */
+  assertSpare: function() {
+  },
+
+  /**
+   * Assert that a dummy
+   */
+  assertBackfilled: function() {
+  },
+
+
+};
+
+/**
+ * Parameterized core functionality testing.  All tests are run in both
+ *  horizontal and vertical orientations with both synchronous and asynchronous
+ *  viewslice mechanisms.  We also parameterize the size of the homogeneous
+ *  elements and the viewport.  This does raise the question of whether our
+ *  check logic could be buggy in the same fashion as the virtual list widget
+ *  logic and erroneously pass.  Given the difficulty in mastering the
+ *  precursor tests with hand-coded cases, it's deemed an acceptable tradeoff
+ *  that will be checked with human inspection.
+ *
+ * Although tests are designed to operate in terms of buffer sizes without
+ *  requiring changes, we do require that the retention limit is twice the
+ *  (pre-)buffer size.
+ */
+function baseVirtTestPage(test, doc, win,
+                          beVertical, beSynchronous, viewportDim, itemDim) {
+  var domainName = "vl-" +
+                     (beVertical ? "vert" : "horiz") + "-" +
+                     (beSynchronous ? "sync" : "async");
+  var wy = new wmsy.WmsyDomain({id: "virt-same", domain: domainName});
+
+  var minorDim = 100;
+
+  // --- setup wmsy widgets
+
+  wy.defineWidget({
+    name: "container",
+    constraint: {
+      type: "container",
+    },
+    structure: {
+      items: wy.libWidget(
+        {
+          type: "virt-list",
+          constraint: {type: "item"},
+          jumpConstraint: {type: "jump"},
+          layout: "linear",
+          vertical: beVertical,
+          pixpect: itemDim,
+        },
+        "items"),
+    },
+    style: {
+      root: [
+        "width: " + (beVertical ? minorDim : viewportDim) + "px;",
+        "height: " + (beVertical ? viewportDim : minorDim) + "px;",
+      ],
+      items: [
+        "width: 100%;",
+        "height: 100%;",
+      ],
+    },
+    emit: ["seek"],
+    receive: {
+      visibleBindings: kidHelpers.visibleBindings,
+    }
+  });
+
+  var marginDim = 10;
+  var itemSansMargin = itemDim - marginDim;
+  var onAxisAttr = beVertical ? "height" : "width";
+  var onAxisPostAttr = beVertical ? "bottom" : "right";
+  wy.defineWidget({
+    name: "list-item",
+    constraint: {
+      type: "item",
+    },
+    structure: {
+      numba: wy.bind(wy.SELF),
+    },
+    style: {
+      root: [
+        "min-" + onAxisAttr + ": " + itemSansMargin + "px;",
+        "" + onAxisAttr + ": " + itemSansMargin + "px;",
+        "max-" + onAxisAttr + ": " + itemSansMargin + "px;",
+        "margin-" + onAxisPostAttr + ": " + marginDim + "px;",
+        "overflow: hidden;",
+      ],
+    }
+  });
+
+  // --- instantiate and thunk
+  var h = new TestHelper(test, doc, win, wy, beVertical, beSynchronous);
+
+  // --- immutable test
+
+  // -- initial seeks and scroll invariants
+
+  // - seek to the top
+  h.initialSeek(h.firstKey, 0.0, 0.0, 0);
+  h.assertVisible(null, {first: h.firstKey}, true);
+
+  // . focus should be on the first item
+  h.assertFocused(h.firstKey);
+
+  // - scrolling up from the top does nothing
+  h.scroll(-1);
+
+  // - seek to the bottom
+  h.initialSeek(h.lastKey, 1.0, 1.0, 0);
+  h.assertVisible(true, {last: h.lastKey}, null);
+
+  // . focus should be on the last item
+  h.assertFocused(h.lastKey);
+
+  // - scrolling down from the bottom does nothing
+  h.scroll(1);
+
+  // - seek to the middle
+  h.initialSeek(h.middleKey, 0.5, 0.5, 0);
+  h.assertVisible(true, {somewhere: h.middleKey}, true);
+
+  // . focus should be on the seek target
+  h.assertFocused(h.middleKey);
+
+
+  // -- scrolling: reasonable
+  // (we are still seeked to the middle)
+
+  // - up 0.8 buffer => pre buffering, no post culling (spare: 1.8)
+  h.scroll(-1, {buffer: 0.8});
+  h.assertBuffered(0.8, null);
+  h.assertDiscarded(null, null);
+  h.assertSpare(1.0, 1.8);
+
+  // - up 0.8 buffer => pre buffering, post culling (spare 2.6, excess: ~0.6)
+  h.scroll(-1, {buffer: 0.8});
+  h.assertBuffered(0.8, null);
+  h.assertDiscarded(null, 0.6);
+  h.assertSpare(1.0, 2.0);
+
+  // - down 0.8 => no post buffering (spare 1.2), no pre culling (spare 1.8)
+  h.scroll(1, {buffer: 0.8});
+  h.assertBuffered(null, null);
+  h.assertDiscarded(null, null);
+  h.assertSpare(1.8, 1.2);
+
+  // - down 0.8 => post buffering (spare 0.5), pre culling (excess ~0.6)
+  h.scroll(1, {buffer: 0.8});
+  h.assertBuffered(null, 0.5);
+  h.assertDiscarded(0.6, null);
+  h.assertSpare(2.0, 1.0);
+
+
+  // -- scrolling: ridiculous
+
+  // - try and scroll beyond our buffer after-wise, hit the void, backfill
+  h.initialSeek(h.middleKey, 0.5, 0.5, 0);
+  h.scroll(-1, {buffer: 1.5});
+  h.assertBackfilled(0.5, null);
+  h.assertBuffered(1.5, null);
+  h.assertDiscarded(null, 0.5);
+  h.assertSpare(1.0, 2.0);
+
+  // - try and scroll beyond our buffer before-wise, hit the void, backfill
+  h.initialSeek(h.middleKey, 0.5, 0.5, 0);
+  h.scroll(1, {buffer: 1.5});
+  h.assertBackfilled(null, 0.5);
+  h.assertBuffered(null, 1.5);
+  h.assertDiscarded(0.5, null);
+  h.assertSpare(2.0, 1.0);
+
+  // -- inductive seek: within existing range
+  // (translated to a scroll)
+
+  // - (initial seek to the top)
+  h.initialSeek(h.firstKey, 0, 0, 0);
+
+  // - focus halfway down the first item
+  h.seek(h.firstKey, 0.5, 0.0, 0);
+
+  // - focus back up at the top of the first item
+  h.seek(h.firstKey, 0.0, 0.0, 0);
+
+  // - focus back up at the top of the first item with padding
+  // we should not put ourselves in 'negative space'
+  h.seek(h.firstKey, 0.0, 0.0, 10);
+
+  // - focus at the bottom of the first item
+  h.seek(h.firstKey, 1.0, 0.0, 0);
+
+  // - seek to the subsequent visible item (assert its existence)
+  h.seek(h.visibleKey(1), 0.0, 0.0, 0);
+
+  // - seek to the first fully non-visible item in the post-buffer
+  h.seek(h.bufferKey(1, 0), 0.0, 0.0, 0);
+
+  // - seek to the last item in the post-buffer (edge case)
+  h.seek(h.bufferKey(1, -1), 0.0, 0.0, 0);
+
+  // -- inductive seek: outside existing range
+  // (jump seek)
+
+  // - (initial seek to the top)
+
+  // - seek to the bottom
+
+  // - seek to the middle
+
+  // - seek to the first item outside of the post-range; should be a seek
+
+
+  // --- insertions
+
+  // -- insert just before first visible node; view unaffected
+
+  // -- insert just after last visible node; view unaffected
+
+  // -- insert just after first visible node; view affected
+
+  // -- insert just before last visible node; view affected
+
+
+  // --- deletions
+
+  // -- delete just before first visible node; view unaffected
+
+  // -- delete just after last visible node; view unaffected
+
+  // -- delete partially visible first node; view stable-ish but affected
+  // (we don't want the first fully visible node sliding off the screen)
+
+  // -- delete partially visible last node; view affected
+
+  // -- delete first fully visible node (equivalent to any fully visible node)
+
+
+
+}
+
+var VIEWPORT_DIM = 200, ITEM_DIM = 50;
+
+exports.testVertSync = function(test) {
+  test.waitUntilDone();
+  pth.makeTestPage(test, function(doc, win) {
+    baseVirtTestPage(test, doc, win,
+                     true, true, VIEWPORT_DIM, ITEM_DIM);
+    test.done();
+  });
+};
+
+exports.testVertAsync = function(test) {
+  test.waitUntilDone();
+  pth.makeTestPage(test, function(doc, win) {
+    baseVirtTestPage(test, doc, win,
+                     true, false, VIEWPORT_DIM, ITEM_DIM);
+    test.done();
+  });
+};
+
+exports.testHorizSync = function(test) {
+  test.waitUntilDone();
+  pth.makeTestPage(test, function(doc, win) {
+    baseVirtTestPage(test, doc, win,
+                     false, true, VIEWPORT_DIM, ITEM_DIM);
+    test.done();
+  });
+};
+
+exports.testHorizAsync = function(test) {
+  test.waitUntilDone();
+  pth.makeTestPage(test, function(doc, win) {
+    baseVirtTestPage(test, doc, win,
+                     false, false, VIEWPORT_DIM, ITEM_DIM);
+    test.done();
+  });
+};
+
+/*
+ * Test simultaneous insertion/deletion, which is only currently possible when
+ *  using the interposing view slice mechanism.
+ */
 
 /*exports.testVirtHomogeneous = */ function testVirtHomogeneous(test) {
   var wy = new wmsy.WmsyDomain({id: "virt-same", domain: "wl-v-same"});
@@ -240,9 +639,16 @@ function makeKidHelpers() {
       type: "container",
     },
     structure: {
-      items: wy.libWidget({type: "virt-list",
-                           constraint: {type: "item"},
-                           id: wy.SELF}, "items"),
+      items: wy.libWidget(
+        {
+          type: "virt-list",
+          constraint: {type: "item"},
+          jumpConstraint: {type: "jump"},
+          layout: "linear",
+          vertical: aVert,
+          pixpect: 50,
+        },
+        "items"),
     },
     style: {
       root: [
@@ -428,16 +834,18 @@ function makeKidHelpers() {
   }
 };
 
+/**
+ * Make sure that we update our focus when things scroll out of view and when
+ *  seeking.
+ */
+exports.testFocusUpdates = function() {};
+
 /*
-exports.testVirtTiled = function testVirtTiled(test) {
-  var wy = new wmsy.WmsyDomain({id: "virt-tile", domain: "wl-v-tile"});
+ * Make sure we handle under-predicting pixpects without dying.
+ */
 
-};
-
-exports.testVirtHeterogeneous = function testVirtHeterogeneous(test) {
-  var wy = new wmsy.WmsyDomain({id: "virt-diff", domain: "wl-v-diff"});
-
-};
-*/
+/*
+ * Make sure we handle response fragmenting correctly.
+ */
 
 }); // end require.def
