@@ -60,6 +60,7 @@ require.def("wmsy-tests/test-wlib-virt",
   [
     "wmsy/wmsy",
     "wmsy/viewslice-generative",
+    "wmsy/wlib/virt-list-spy",
     "wmsy-plat/page-test-helper",
     "wmsy-plat/dom-test-helper",
     "exports"
@@ -67,6 +68,7 @@ require.def("wmsy-tests/test-wlib-virt",
   function(
     wmsy,
     $vs_gen,
+    $spy,
     pth,
     dth,
     exports
@@ -252,14 +254,27 @@ function TestHelper(test, doc, win, wy, vertical, async) {
 
   this.wrapped = wy.wrapElement(doc.getElementById("root"));
   this.curBinding = null;
+  this.spy = null;
 
   this._sliceSetup();
+
+  var self = this;
+  this.visibleBindingsHandler = function() {
+    self._visibleBindingsCallback.apply(self, arguments);
+  };
 }
 TestHelper.prototype = {
   _genSyncFunc: function() {
+
   },
 
   _genAsyncFunc: function() {
+    this._pendingAsync = this._genSyncFunc.apply(this, arguments);
+    return undefined;
+  },
+
+  _asyncFulfill: function() {
+
   },
 
   /**
@@ -277,7 +292,10 @@ TestHelper.prototype = {
                  );
 
     this.obj = {items: this.slice};
-    this.wrapped.emit({type: "container", obj: this.obj});
+    this.curBinding = this.wrapped.emit({type: "container", obj: this.obj});
+
+    this.vBinding = this.curBinding.items_element.binding;
+    this.spy = new $spy.VirtualListSpy(this.vBinding, this);
   },
 
   /**
@@ -288,6 +306,16 @@ TestHelper.prototype = {
     this.lastKey = 99;
     this.lastKeyEx = this.lastKey + 1;
     this.middleKey = 50;
+
+    this._pendingAsync = null;
+  },
+
+  /**
+   * Callback handler for when the virtual list widget reports visible bindings;
+   *  the test context uses our `visibleBindingsHandler` closed-over function
+   *  when defining its widgets in order to direct the notifications to us.
+   */
+  _visibleBindingsCallback: function(aBindings, aDelta) {
   },
 
   /**
@@ -309,6 +337,8 @@ TestHelper.prototype = {
    *  first-seek logic to be used rather than the already-seeked logic.
    */
   initialSeek: function() {
+    this._reinit();
+    this.seek.apply(this, arguments);
   },
 
   /**
@@ -316,6 +346,13 @@ TestHelper.prototype = {
    *  all follow-up requests to cease.
    */
   seek: function() {
+    this.spy.clear();
+    this.slice.seek.apply(this.slice, arguments);
+    // trigger async completion if so.
+    while (this._pendingAsync)
+      this._asyncFulfill();
+
+
   },
 
   /**
@@ -323,11 +360,17 @@ TestHelper.prototype = {
    *  follow-up requests to cease.
    */
   scroll: function(aDir, aMag) {
+    this.spy.clear();
+
   },
 
   /**
    * Assert that the last operation caused new buffering to occur (or not occur)
    *  in each direction.
+   *
+   * This is determined by observing grow requests, the resulting splices, and
+   *  the resulting linear space occupied by the bindings for the spliced
+   *  nodes.
    */
   assertBuffered: function() {
   },
@@ -335,19 +378,30 @@ TestHelper.prototype = {
   /**
    * Assert that the last operation caused (buffered) items to be discarded
    *  via noteRanges.
+   *
+   * We wrap noteRanges and check the aggregate length of pixels occupied by the
+   *  bindings that are being destroyed.
    */
-  assertDiscarded: function() {
+  assertDiscarded: function(aLowBufferRatio, aHighBufferRatio) {
   },
 
   /**
    * Assert that the current amount of spare space in each direction is
    *  approximately of a given buffer-relative size.
+   *
+   * Our data is the set of bound instances in the virtual list's set of
+   *  bindings that lie outside the visible range.
    */
-  assertSpare: function() {
+  assertSpare: function(aLowBufferRatio, aHighBufferRatio) {
   },
 
   /**
-   * Assert that a dummy
+   * Assert that a spacer node was bound into existence, that its size was
+   *  proportional to the provided buffer ratio, and that it was subsequently
+   *  replaced by buffered contents.
+   *
+   * Our data points are obtained by thunking the functions that create/adjust/
+   *  destroy spacer nodes plus our existing logic for buffering.
    */
   assertBackfilled: function() {
   },
@@ -377,6 +431,9 @@ function baseVirtTestPage(test, doc, win,
   var wy = new wmsy.WmsyDomain({id: "virt-same", domain: domainName});
 
   var minorDim = 100;
+
+  // --- instantiate and thunk
+  var h = new TestHelper(test, doc, win, wy, beVertical, beSynchronous);
 
   // --- setup wmsy widgets
 
@@ -409,7 +466,7 @@ function baseVirtTestPage(test, doc, win,
     },
     emit: ["seek"],
     receive: {
-      visibleBindings: kidHelpers.visibleBindings,
+      visibleBindings: h.visibleBindingsHandler,
     }
   });
 
@@ -436,8 +493,6 @@ function baseVirtTestPage(test, doc, win,
     }
   });
 
-  // --- instantiate and thunk
-  var h = new TestHelper(test, doc, win, wy, beVertical, beSynchronous);
 
   // --- immutable test
 

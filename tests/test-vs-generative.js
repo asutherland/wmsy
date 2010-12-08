@@ -92,13 +92,10 @@ exports.seekKeyBased = function seekKeyBased(test) {
 
   slice.seek(valToKey(0), 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 0, "base");
   test.assertEqual(listener.items.length, 2, "list length");
   test.assertEqual(listener.items.toString(),
                    ["#0", "#1"].toString(),
                    "list contents");
-  test.assertEqual(slice.availLow, 0, "low avail");
-  test.assertEqual(slice.availHigh, 998, "high avail");
   listener.reset();
 
   slice.grow(2);
@@ -108,17 +105,8 @@ exports.seekKeyBased = function seekKeyBased(test) {
 
   test.assertEqual(slice.translateIndex(0), valToKey(0));
 
-  // searchKnown for known values should work...
-  test.assertEqual(slice.searchKnown(valToKey(0)), 0, "searchKnown");
-  test.assertEqual(slice.searchKnown(valToKey(1)), 1, "searchKnown");
-  // searchKnown for values outside our known range should end up clamping to
-  //  the buffered values...
-  test.assertEqual(slice.searchKnown(valToKey(-10)), 0, "searchKnown");
-  test.assertEqual(slice.searchKnown(valToKey(2000)), 3, "searchKnown");
-
   slice.seek(valToKey(999), 1, 1);
   test.assert(listener.gotDidSeek);
-  test.assertEqual(listener.base, 998, "base");
   test.assertEqual(listener.items.length, 2, "list length");
   test.assertEqual(listener.items.toString(),
                    ["#998", "#999"].toString(),
