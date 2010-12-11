@@ -1,0 +1,52 @@
+#lang narscribblus/interactive
+
+@title{Focus}
+
+Wmsy provides built-in support for focus.  The (hopefully) hardest thing about
+dealing with focus is adding the CSS to your widgets to style them to show that
+they are focused.
+
+Widgets can be involved with focus in exactly one of the following ways, with
+one notable exception that will be mentioned later:
+@itemize[
+  @item{
+    Not be focusable and have no focusable children.  By default, widgets do not
+    participate in focus.
+  }
+  @item{
+    Be a Focus Container.  A widget that is a focus container is not itself
+    focusable, but has one or more explicitly named children that are themselves
+    focus containers or focusable items.
+
+    Focus containers have orientation (horizontal/vertical).  Knowing this as
+    well as the order in which the children were explicitly named allows us to
+    figure out how we should try to transfer the focus when the arrow keys are
+    pressed.
+  }
+  @item{
+    Be a Focus Domain.  Focus domains are special focus containers that serve as
+    the roots of the focus container hierarchies.  There is at most one focused
+    item in each focus domain.  Only one focus domain may be active at a time;
+    all the others are inactive.
+
+    You might use multiple focus domains if you were going to implement the
+    classic 3-pane mail view of traditional e-mail clients.  In such a case,
+    the folder-pane would form one focus domain and the message list another.
+  }
+  @item{
+    Be a focusable item.  An item is either focused or not focused.  Because a
+    page can contain multiple Focus Domains and each of those domains can have
+    a focused item, there can be multiple focused items on the page.  However,
+    there can be only one active focused domain and therefore only one active
+    focused item.
+  }
+]
+
+@subsection{NestedItems: The Exception}
+
+NestedItems are focusable items that also have children which may also be
+focusable.  The canonical example of a case where you would want a NestedItem
+is a folder tree/hierarchy where you can expand and collapse the folders.
+Although you could implement such a display without NestedItems, it would be
+a very unpleasant experience.
+

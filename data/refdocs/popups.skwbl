@@ -1,0 +1,58 @@
+#lang narscribblus/interactive
+
+@title{Popups}
+
+A widget that wants to display a pop-up needs to say so in the widget
+definition.
+@exSlice["name-widget" nil #:depth 0 #:expand "popups"]
+
+It needs to tell us:
+@itemize[
+  @item{
+    What it wants to display.
+    @exslice["name-widget" "details" #:depth 1 #:expand "constraint"]
+  }
+  @item{
+    How the pop-up should look.
+  }
+  @item{
+    How the pop-up should behave.
+    @exslice["name-widget" "details" #:depth 1 #:expand "clickAway"]
+  }
+  @item{
+    Where to display it.
+    @exslice["name-widget" "details" #:depth 1
+             #:expand "position"
+             #:expand "centerOnFocus"]
+  }
+]
+
+For example, let us assume that we 
+
+@exampleCode["name-widget"
+  #:deps "wmsy-prolog"
+@js{
+  wy.defineWidget({
+    name: "person",
+    constraint: {
+      type: "person",
+    },
+    popups: {
+      details: {
+        constraint: {
+        
+        },
+        clickAway: true,
+        position: {
+        },
+      },
+    },
+  });
+}]
+
+@collapsed["Wmsy Boilerplate"]{@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
+}]}
