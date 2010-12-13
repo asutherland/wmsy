@@ -17,7 +17,7 @@
   @key["doc" #:optional String]{
     A brief description of what your widget does for use by wmsy-aware tools.
     If your @lxref{name} already says it all, there's no need to provide this.
-    Admittedly, at the current time no part of the framework surface this.
+    Admittedly, at the current time no part of the framework surfaces this.
   }
 
   @key["constraint" #:required ConstraintDef]{}
