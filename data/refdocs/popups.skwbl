@@ -4,24 +4,24 @@
 
 A widget that wants to display a pop-up needs to say so in the widget
 definition.
-@exSlice["name-widget" nil #:depth 0 #:expand "popups"]
+@exSlice["name-widget" null #:depth 1 #:expand "popups"]
 
 It needs to tell us:
 @itemize[
   @item{
     What it wants to display.
-    @exslice["name-widget" "details" #:depth 1 #:expand "constraint"]
+    @exSlice["name-widget" "details" #:depth 1 #:expand "constraint"]
   }
   @item{
     How the pop-up should look.
   }
   @item{
     How the pop-up should behave.
-    @exslice["name-widget" "details" #:depth 1 #:expand "clickAway"]
+    @exSlice["name-widget" "details" #:depth 1 #:expand "clickAway"]
   }
   @item{
     Where to display it.
-    @exslice["name-widget" "details" #:depth 1
+    @exSlice["name-widget" "details" #:depth 1
              #:expand "position"
              #:expand "centerOnFocus"]
   }
@@ -40,7 +40,6 @@ For example, let us assume that we
     popups: {
       details: {
         constraint: {
-        
         },
         clickAway: true,
         position: {
