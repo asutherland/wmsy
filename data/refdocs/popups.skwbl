@@ -10,18 +10,18 @@ It needs to tell us:
 @itemize[
   @item{
     What it wants to display.
-    @exSlice["name-widget" "details" #:depth 1 #:expand "constraint"]
+    @exSlice["name-widget" "popupName" #:depth 1 #:expand "constraint"]
   }
   @item{
     How the pop-up should look.
   }
   @item{
     How the pop-up should behave.
-    @exSlice["name-widget" "details" #:depth 1 #:expand "clickAway"]
+    @exSlice["name-widget" "popupName" #:depth 1 #:expand "clickAway"]
   }
   @item{
     Where to display it.
-    @exSlice["name-widget" "details" #:depth 1
+    @exSlice["name-widget" "popupName" #:depth 1
              #:expand "position"
              #:expand "centerOnFocus"]
   }
@@ -38,7 +38,7 @@ For example, let us assume that we
       type: "person",
     },
     popups: {
-      details: {
+      popupName: {
         constraint: {
         },
         clickAway: true,

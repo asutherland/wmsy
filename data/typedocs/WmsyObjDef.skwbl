@@ -145,13 +145,33 @@
   ]
 
   @key["popups" #:optional @dictof[
-    @key["popup name" String]
-    @value["popup constraint" WmsyConstraintDef]]]{
-    
+    @key["popup name" String]{
+      The name of the popup; important only because the function to invoke the
+      popup on the binding is named "popup_NAME".  So a name of "foo" results
+      in a function name of "popup_foo".
+    }
+    @value["popup definition" PopupDef]
+  ]]{
+    A dictionary that defines one or more popups that can be triggered by
+    this widget.  If you find yourself copying and pasting these definitions
+    then you should consider moving the popup definition to an ancestor and
+    instead using `emit` and `receive` to communicate with the ancestor.
   }
 ]]{
   The wmsy widget definition dictionary.
 }
+
+@typedef[PopupDef @dict[
+  @key[constraint ConstraintDef]
+  @key[clickAway #:optional #:default true Boolean]{
+    If the user clicks outside of the popup, should the popup automatically
+    invoke `done` on itself?
+  }
+  @key[position PositionDef]
+  @key[popupWidget #:optional Object]{
+    Optionally specify a specific widget to use as a container instance.
+  }
+]]
 
 @typedef[StructureDefIsh @oneof[StructureDef ObjDecorator]]
 
