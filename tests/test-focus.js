@@ -36,7 +36,7 @@
  * Test focus mechanisms,
  */
 
-require.def("wmsy-tests/test-focus",
+define("wmsy-tests/test-focus",
   [
     "wmsy/wmsy",
     "wmsy-plat/page-test-helper",
@@ -652,4 +652,4 @@ exports.xestTreeFocus = function testTreeFocus(test) {
 };
 */
 
-}); // end require.def
+}); // end define

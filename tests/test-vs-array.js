@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-require.def("wmsy-tests/test-vs-array",
+define("wmsy-tests/test-vs-array",
             ["wmsy/viewslice-array", "exports"],
             function(vst, exports) {
 
@@ -402,4 +402,4 @@ exports.testExternalChangesAndNoteRanges = function(test) {
   test.assertSamey(list, ["(", "b", "bc", "d", ")"]);
 };
 
-}); // end require.def
+}); // end define

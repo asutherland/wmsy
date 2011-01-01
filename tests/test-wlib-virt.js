@@ -56,7 +56,7 @@
  * - Seek...
  **/
 
-require.def("wmsy-tests/test-wlib-virt",
+define("wmsy-tests/test-wlib-virt",
   [
     "wmsy/wmsy",
     "wmsy/viewslice-generative",
@@ -903,4 +903,4 @@ exports.testFocusUpdates = function() {};
  * Make sure we handle response fragmenting correctly.
  */
 
-}); // end require.def
+}); // end define

@@ -36,7 +36,7 @@
  * General operation and focus checking for popups.
  **/
 
-require.def("wmsy-tests/test-popups",
+define("wmsy-tests/test-popups",
             ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
             function(wmsy, pth, exports) {
 
@@ -77,4 +77,4 @@ require.def("wmsy-tests/test-popups",
 
 };
 
-}); // end require.def
+}); // end define

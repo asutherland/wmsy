@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-require.def("wmsy-tests/test-vs-generative",
+define("wmsy-tests/test-vs-generative",
             ["wmsy/viewslice-generative", "exports"],
             function($vs_generative, exports) {
 
@@ -125,4 +125,4 @@ exports.seekKeyBased = function seekKeyBased(test) {
 
 };
 
-}); // end require.def
+}); // end define

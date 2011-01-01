@@ -33,7 +33,7 @@
 ****************************** END LICENSE BLOCK ******************************/
 
 
-require.def("wmsy-plat/page-test-helper",
+define("wmsy-plat/page-test-helper",
   [
     "exports",
   ],
@@ -79,4 +79,4 @@ exports.makeTestPage = function(testHandle, testFunc) {
   }, 0);
 };
 
-}); // end require.def
+}); // end define

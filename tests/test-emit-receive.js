@@ -38,7 +38,7 @@
  *  we also want to make sure that dynamic changes are also handled.
  */
 
-require.def("wmsy-tests/test-emit-receive",
+define("wmsy-tests/test-emit-receive",
             ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
             function(wmsy, pth, exports) {
 
@@ -386,4 +386,4 @@ exports.testComplexEmitReceive = function testComplexEmitReceive(test) {
   }
 };
 
-}); // end require.def
+}); // end define

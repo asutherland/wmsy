@@ -37,7 +37,7 @@
  *  should.
  **/
 
-require.def("wmsy-tests/test-bind",
+define("wmsy-tests/test-bind",
             ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
             function(wmsy, pth, exports) {
 
@@ -285,4 +285,4 @@ exports.testFromConstraintBind = function testFromConstraintBind(test) {
   }
 };
 
-}); //end require.def
+}); //end define

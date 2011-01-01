@@ -32,7 +32,7 @@
 *
 ****************************** END LICENSE BLOCK ******************************/
 
-require.def("wmsy-tests/test-decision-space",
+define("wmsy-tests/test-decision-space",
             ["wmsy/decision-space", "exports"],
             function($dspace, exports) {
 
@@ -178,4 +178,4 @@ function print(x) {
   console.log(x);
 }
 
-}); // end require.def
+}); // end define

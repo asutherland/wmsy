@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-require.def("wmsy-tests/test-vs-interpose",
+define("wmsy-tests/test-vs-interpose",
             ["wmsy/viewslice-array", "wmsy/viewslice-interpose", "exports"],
             function($vsa, $vsi, exports) {
 
@@ -540,4 +540,4 @@ exports.testExternalChanges = function(test) {
 
 
 
-}); // end require.def
+}); // end define

@@ -36,7 +36,7 @@
  * Test widget list functionality not covered elsewhere.
  **/
 
-require.def("wmsy-tests/test-widget-list",
+define("wmsy-tests/test-widget-list",
             ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
             function(wmsy, pth, exports) {
 
@@ -370,4 +370,4 @@ exports.testEnsureVisibleComplex = function testEnsureVisibleComplex(test) {
   }
 };
 
-}); // end require.def
+}); // end define

@@ -38,7 +38,7 @@
  *  primarily.)
  **/
 
-require.def("wmsy-tests/test-life-cycle",
+define("wmsy-tests/test-life-cycle",
             ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
             function(wmsy, pth, exports) {
 
@@ -291,4 +291,4 @@ exports.testWidgetListCycle = function testWidgetListCycle(test) {
   }
 };
 
-}); // end require.def
+}); // end define

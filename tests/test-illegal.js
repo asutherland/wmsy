@@ -40,7 +40,7 @@
  **/
 
 
-require.def("wmsy-tests/test-illegal",
+define("wmsy-tests/test-illegal",
             ["wmsy/wmsy", "wmsy-plat/page-test-helper", "exports"],
             function(wmsy, pth, exports) {
 
@@ -73,4 +73,4 @@ exports.testSelfRecursive = function testSelfRecursive(test) {
   }
 };
 
-}); // end require.def
+}); // end define

@@ -36,7 +36,7 @@
  * Test wmsy event dispatching, mainly clicking.
  **/
 
-require.def("wmsy-tests/test-events",
+define("wmsy-tests/test-events",
   [
     "wmsy/wmsy",
     "wmsy-plat/page-test-helper",
@@ -413,4 +413,4 @@ exports.testClickOnWidgetList = function testClickOnWidgetList(test) {
   }
 };
 
-}); // end require.def
+}); // end define

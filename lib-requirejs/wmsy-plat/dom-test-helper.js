@@ -12,7 +12,7 @@
  *  events.  You can see the wreckage down at the bottom.
  */
 
-require.def("wmsy-plat/dom-test-helper",
+define("wmsy-plat/dom-test-helper",
   [
     "wmsy/platfo",
     "exports"
@@ -200,4 +200,4 @@ var wheelScrollDown = exports.wheelScrollDown =
   fakeWheelEvent({deltaY: -aPix}, aDomNode);
 };
 
-}); // end require.def
+}); // end define

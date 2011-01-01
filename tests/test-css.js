@@ -33,7 +33,7 @@
 ****************************** END LICENSE BLOCK ******************************/
 
 
-require.def("wmsy-tests/test-css",
+define("wmsy-tests/test-css",
             ["wmsy/wmsy-style", "exports"],
             function($style, exports) {
 
@@ -63,4 +63,4 @@ exports.testCssBasics = function testCssBasics(test) {
   }
 };
 
-}); // end require.def
+}); // end define
