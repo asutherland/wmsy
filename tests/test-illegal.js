@@ -67,7 +67,7 @@ exports.testSelfRecursive = function testSelfRecursive(test) {
 
     test.assertRaises(function asplode() {
       var binding = emitter.emit({type: "self-recursive", obj: {}});
-    }, "self-recursive binding detected: i-recursive-recursive-recursed-sub");
+    }, "self-recursive binding detected: i-recursive--recursive--recursed--sub");
 
     test.done();
   }
