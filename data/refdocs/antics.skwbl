@@ -1,0 +1,97 @@
+#lang narscribblus/interactive
+
+@title{Antics: Animation for Cheap}
+
+@section{Overview}
+
+@subsection{What It Is}
+
+Wmsy antics animates the addition, removal, and movement of widgets.
+
+The wmsy antics logic builds on the object identity logic to figure out when
+you have added/removed/copied/moved widgets of interest to the UI in order to
+automatically generate animations.  The things you need to do are to:
+
+@itemize[
+  @item{
+    Define an object id space for the objects' widgets you want animated.
+  }
+  @item{
+    Annotate your widget definitions to indicate that the object the widget is
+    representing belongs to a specific id space.
+  }
+  @item{
+    Bookend your manipulations of the widgets with calls to ANTICS.prepare() and
+    ANTICS.go().
+  }
+]
+
+@exampleShow["party-list-example"
+  "wmsy-prolog" "party-style" "party-lists"
+]{Party List Example}
+
+@collapsed["Party List Example Code"
+@exampleCode["party-lists"
+@js{
+  wy.defineIdSpace("person", function(person) { return person.id; });
+
+  wy.defineWidget({
+    name: "person",
+    idspaces: ["person"],
+  });
+
+  wy.defineWidget({
+    name: "party-planner",
+    structure: {
+      lists: {
+        invited: wy.vertList({type: "person"}, "invited"),
+        uninvited: wy.vertList({type: "person"}, "uninvited"),
+      }
+      buttons: {
+        gainFriend: wy.button("Make a new friend"),
+        loseFriend: wy.button("Lose an uninvited friend"),
+        haveParty: wy.button("Have the party, lose all uninvited friends"),
+      },
+    },
+    events: {
+    },
+    style: {
+      invited: ".partyList",
+      uninvited: ".partyList",
+    },
+  });
+}]]
+
+@collapsed["Party List Styling"
+@exampleCode["party-style"
+@js{
+  wy.defineStyleBase("party", [
+    ".partyList {",
+    "  display: inline-block;",
+    "  width: 40%;",
+    "  border: 1px solid gray;",
+    "  margin: 1em;",
+    "}",
+  ]);
+}]]
+
+@subsection{What It Is Not}
+
+Antics is not a replacement for CSS transitions or SVG SMIL animations.  It does
+not handle animations inside a widget; use CSS transitions, SVG SMIL, or a
+third-party javascript library for that.
+
+@section{Why not do it myself?}
+
+@itemize[
+  @item{
+    Object life-cycle issues are tricky.  
+  }
+]
+
+@collapsed["Wmsy Boilerplate"]{@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
+}]}

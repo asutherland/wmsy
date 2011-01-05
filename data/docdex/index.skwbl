@@ -3,38 +3,45 @@
 @section{Propaganda}
 
 @itemize[
-  @item{@doclink["docdex/hardsell.skwbl"]{The Hard Sell}: Why does wmsy exist
-        and why would I want to use it?}
-
-  @item{@doclink["docdex/features.skwbl"]{Features}: What does wmsy do?}
+  @item{
+    @doclink["docdex/hardsell.skwbl"]{The Hard Sell}: Why does wmsy exist
+    and why would I want to use it?
+  }
+  @item{
+    @doclink["docdex/features.skwbl"]{Features}: What does wmsy do?
+  }
 ]
 
 
 @section{Tutorials}
 
-Introductions to how to use wmsy for specific goals.
-
 @subsection{Basics}
 
 @itemize[
-  @item{@doclink["tutorial/messages.skwbl"]{Messages}: A quick introduction to
-        wmsy using messaging as the example domain.}
+  @item{
+    @doclink["tutorial/messages.skwbl"]{Messages}: A quick introduction to
+    wmsy using messaging as the example domain.
+  }
+  @item{
+    @doclink["refdocs/antics.skwbl"]{Antics}: Animating the addition, copying,
+    movement, or removal of widgets/the objects they are bound to.
+  }
 @;{
-  @item{@doclink["tutorial/focus.skwbl"]{Focus}: Leveraging the built-in focus
-        support.}
-  @item{@doclink["tutorial/ext-basics.skwbl"]{Extension Basics}: How to replace
-        or specialize existing widgets.}
-  @item{@doclink["tutorial/styling-basics.skwbl"]{Styling/Theming}: How to
-        change the look of things without defining new widgets.}
-}
-]
+  @item{
+    @doclink["tutorial/focus.skwbl"]{Focus}: Leveraging the built-in focus
+    support.
+  }
+  @item{
+    @doclink["tutorial/ext-basics.skwbl"]{Extension Basics}: How to replace
+    or specialize existing widgets.
+  }
+  @item{
+    @doclink["tutorial/styling-basics.skwbl"]{Styling/Theming}: How to
+    change the look of things without defining new widgets.
+  }
+}]
 
-@subsection{}
-
-
-@section{User Reference}
-
-Detailed discussions and examples of specific pieces of functionality.
+@subsection{Fancy}
 
 @itemize[
   @item{@doclink["refdocs/emitreceive.skwbl"]{emit/receive/relay}:
@@ -42,7 +49,6 @@ Detailed discussions and examples of specific pieces of functionality.
   @item{@doclink["refdocs/viewslice.skwbl"]{View Slices}: a protocol for
         displaying a subset of data when it's too expensive or just infeasible
         to display it all at once. @itemize[
-
     @item{@doclink["refdocs/viewslice-interposing.skwbl"]{Interposing View
           Slices}: A way to dynamically inject synthetic objects into a view
           slice.  For example, putting a giant letter in an address book before
@@ -55,9 +61,4 @@ Detailed discussions and examples of specific pieces of functionality.
 @itemize[
   @item{@doclink["docdex/pubtypes.swkbl"]{Public Data Types}}
 ]
-
-@section{Implementation}
-
-
-@section{Development Process}
 
