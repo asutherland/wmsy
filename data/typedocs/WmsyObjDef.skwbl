@@ -170,7 +170,9 @@
   @key[position PositionDef]
   @key[size #:optional @dict[
     @key[width #:optional CSSDimOrMagicPercentage]
+    @key[maxWidthPx #:optional CSSDim]
     @key[height #:optional CSSDimOrMagicPercentage]
+    @key[maxHeight #:optional CSSDim]
   ]]{
     Provide explicit sizing for the pop-up.  The popup's DOM node will be a
     child of the document's body element, so string percentages will reference
@@ -182,16 +184,24 @@
 ]]
 
 @typedef[CSSDimOrMagicPercentage @oneof[
-  @case[String]{
-    A string that contains a valid CSS length or percentage value.
-  }
+  @case[CSSDim]
   @case[Number]{
     If in the range [0.0, 1.0], it is interpreted to be percentages of the
     viewport display area.
   }
 ]]
 
+@typedef[CSSDim String]{
+  A string that contains a valid CSS length or percentage value.
+}
+
 @typedef[StructureDefIsh @oneof[StructureDef ObjDecorator]]
+
+@typedef[StructureDef @dictof[
+  @key["Element Name" String]
+  @value["Marker" WmsyStructMarker]
+]]
+
 
 @typedef[BindingDef @oneof[
   @case[String]{
