@@ -117,11 +117,16 @@
 
   @group["Widget Communication"
     @desc{
-      Mechanisms to support loosely coupled widget communication; see 
+      Mechanisms to support loosely coupled widget communication using an ad-hoc
+      signal mechanism.  Links are established at widget binding time resulting
+      in efficient dispatch.
+      @topiclink["refdocs/emitreceive.skwbl"]{tutorial}
     }
 
     @key["emit" #:optional @listof["signal name" String]{
     }]{
+      The names of the signals to emit; for each name "foo", an emit_foo()
+      method will be created on the binding's prototype.
     }
 
     @key["receive" #:optional @dictof[
@@ -134,6 +139,7 @@
 
     @key["relay" #:optional @listof["signal name" String]{
     }]{
+      The names of 
     }
   ]
 

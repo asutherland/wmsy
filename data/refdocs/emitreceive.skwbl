@@ -9,7 +9,7 @@ messaging conventions.
 A widget that emits signals must list the signal names as strings in its widget 
 definition @xref["WidgetDef.emit"]{emit} field.
 
-@jselided{wy.defineWidget({... emit: ["a", "b", "c"] ...});}
+@exSlice["abc" null #:depth 1 #:expand "emit"]
 
 This results in emit_a, emit_b, and emit_c methods being added to the binding's
 prototype.  As far as wmsy is concerned, there is no need to define what
@@ -22,24 +22,12 @@ receive and the values are the functions to use to handle those signals.  The
 functions are always invoked with a @sjskeyword{this} of the binding they are
 being invoked on.
 
-@jselided{
-  wy.defineWidget({
-    ...
-    receive: {
-      a: function() {
-        console.log("received an 'a' signal on binding for object", this.obj);
-      },
-      b: function() {},
-      c: function() {},
-    }
-    ...
-  });
-}
+@exSlice["abc" null #:depth 1 #:expand "receive"]
 
 Emitters and receivers find each other (and are contained within a subtree of
 the UI) through use of @xref["WidgetDef.relay"]{relay} definitions.
 
-@jselided{wy.defineWidget({... relay: ["a", "b", "c"] ...});}
+@exSlice["abc" null #:depth 1 #:expand "relay"]
 
 When a binding is added to a document it walks up its parents trying to
 establish links for all of the signals it emits and receives.  This can be
@@ -161,3 +149,19 @@ And here's the source code that makes it happen:
   var containerObj = {items: [{kind: "lamp"}, {kind: "remote"}]};
   binder.bind({type: "room", obj: containerObj});
 }]}
+
+@collapsed["ABC Syntax Example"
+@exampleCode["abc" #:deps "wmsy-prolog"
+@js{
+  wy.defineWidget({
+    emit: ["a", "b", "c"],
+    receive: {
+      a: function() {
+        console.log("received an 'a' signal on binding for object", this.obj);
+      },
+      b: function() {},
+      c: function() {},
+    },
+    relay: ["a", "b", "c"],
+  });
+}]]
