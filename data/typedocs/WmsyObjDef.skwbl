@@ -176,7 +176,7 @@
   @key[position PositionDef]
   @key[size #:optional @dict[
     @key[width #:optional CSSDimOrMagicPercentage]
-    @key[maxWidthPx #:optional CSSDim]
+    @key[maxWidth #:optional CSSDim]
     @key[height #:optional CSSDimOrMagicPercentage]
     @key[maxHeight #:optional CSSDim]
   ]]{
