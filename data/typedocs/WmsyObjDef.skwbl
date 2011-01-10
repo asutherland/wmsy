@@ -20,12 +20,19 @@
     Admittedly, at the current time no part of the framework surfaces this.
   }
 
-  @key["constraint" #:required ConstraintDef]{}
+  @key["constraint" #:required ConstraintDef]{
+    The decision tree constraints which must match for this widget to be
+    instantiated.
+  }
 
   @group["Form"
-    @key["structure" #:required StructureDefIsh]{}
+    @key["structure" #:required StructureDefIsh]{
+      Define the DOM hierarchy and widget bindings.
+    }
 
-    @key["style" #:optional WmsyStyleDef]{}
+    @key["style" #:optional WmsyStyleDef]{
+      CSS styling for developers; can be overridden with stylesheets.
+    }
   ]
 
   @group["Function"
@@ -39,6 +46,8 @@
         }
       ]
     ]]{
+      Invoked at prototype constructor time, allowing for parameterization of
+      widgets based on PARAM constraints.
     }
 
     @key["constructor" #:optional @func[
@@ -47,6 +56,7 @@
         @param[domNode DOMNode]
       ]
     ]]{
+      Widget constructor, invoked at binding time.
     }
 
     @key["impl" #:optional @dict[
@@ -102,17 +112,21 @@
       }
       @value["handler function" Function]{
       }
-    ]]
+    ]]{
+      Associate event handlers with specific DOM nodes.
+    }
 
     @key["focus" #:optional @oneof[
-          WmsyExportDomain.focus.domain.horizontal
-          WmsyExportDomain.focus.domain.vertical
-          WmsyExportDomain.focus.container.horizontal
-          WmsyExportDomain.focus.container.vertical
-          WmsyExportDomain.focus.nestedItem.horizontal
-          WmsyExportDomain.focus.nestedItem.vertical
-          WmsyExportDomain.focus.item
-        ]]{}
+      WmsyExportDomain.focus.domain.horizontal
+      WmsyExportDomain.focus.domain.vertical
+      WmsyExportDomain.focus.container.horizontal
+      WmsyExportDomain.focus.container.vertical
+      WmsyExportDomain.focus.nestedItem.horizontal
+      WmsyExportDomain.focus.nestedItem.vertical
+      WmsyExportDomain.focus.item
+    ]]{
+      How does this widget deal with focus, if at all?
+    }
   ]
 
   @group["Widget Communication"
@@ -135,11 +149,12 @@
       @value["handler function" Function]{
       }
     ]]{
+      Associate handler functions with named signals.
     }
 
     @key["relay" #:optional @listof["signal name" String]{
     }]{
-      The names of 
+      The names of signals to relay amongst descendent widgets.
     }
   ]
 
@@ -148,7 +163,9 @@
       @key["name"]
       @value["binding" BindingDef]
     ]
-  ]
+  ]{
+    Name bound values to contribute to the context object seen by children.
+  }
 
   @key["popups" #:optional @dictof[
     @key["popup name" String]{
