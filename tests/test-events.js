@@ -41,21 +41,25 @@ define("wmsy-tests/test-events",
     "wmsy/wmsy",
     "wmsy-plat/page-test-helper",
     "wmsy-plat/dom-test-helper",
+    "wmsy-plat/statist-test-helper",
     "exports"
   ],
-  function(wmsy, pth, dth, exports) {
+  function(wmsy, pth, dth, $sth, exports) {
 
 var sendMouseEvent = dth.sendMouseEvent;
+
+exports.__framework = $sth;
 
 /**
  * - Clicking on a sub-element with a handler triggers the sub-element's handler
  *   and not the root (or the sibling).
  * - Clicking on a sub-element without a handler triggers the root handler.
  */
-exports.testClickOnSubElement = function testClickOnSubElement(test) {
+exports.testClickOnSubElement = function testClickOnSubElement(E) {
   var wy = new wmsy.WmsyDomain({id: "simple-widget", domain: "e-widget"});
 
-  var clickedA = false, clickedB = false, clickedRoot = false;
+  var clickEventBinder = E.defStateEvent("click",
+                                         {this: true, args: ["target"]});
 
   wy.defineWidget({
     name: "simple-widget",
@@ -69,56 +73,42 @@ exports.testClickOnSubElement = function testClickOnSubElement(test) {
     },
     events: {
       subA: {
-        click: function() {
-          clickedA = true;
-        },
+        click: clickEventBinder("subA"),
       },
       subB: {
-        click: function() {
-          clickedB = true;
-        }
+        click: clickEventBinder("subB"),
       },
       root: {
-        click: function() {
-          clickedRoot = true;
-        }
+        click: clickEventBinder("root"),
       }
     }
   });
 
-  test.waitUntilDone();
-  pth.makeTestPage(test, gotPage);
-  function gotPage(doc, win) {
+  E.inPage(function(doc, win) {
     var emitter = wy.wrapElement(doc.getElementById("root"));
     var binding = emitter.emit({type: "simple-widget", obj: {}});
 
-    test.assert(binding, "Binding created?");
+    E.wmsyBindingAsHierarchy(binding);
 
-    sendMouseEvent({type: "click"}, binding.subA_element, win);
-    test.assert(clickedA, "subA should get a click event");
-    test.assert(!clickedB, "subB should not get a click event");
-    test.assert(!clickedRoot, "root should not get a click event");
+    E.round("click subA")
+      .click("subA")
+      .state({subA: [{this: binding, target: binding}]});
 
-    clickedA = false;
-    sendMouseEvent({type: "click"}, binding.subC_element, win);
-    test.assert(!clickedA, "subA should not get a click event");
-    test.assert(!clickedB, "subB should not get a click event");
-    test.assert(clickedRoot, "root should get a click event");
-
-    test.done();
-  }
+    E.round("click subC")
+      .click("subC")
+      .state({root: [{this: binding, target: binding}]});
+  });
 };
 
 /**
  * - Clicking on a sub-widget triggers the closest owning widget handler; this
  *   means the sub-widget element itself as well as the root.
  */
-exports.testClickOnSubWidget = function testClickOnSubWidget(test) {
+exports.testClickOnSubWidget = function testClickOnSubWidget(E) {
   var wy = new wmsy.WmsyDomain({id: "subwidget", domain: "e-subwidget"});
 
-  var clickedA = false, clickedB = false, clickedSubB = false,
-      clickedRoot = false;
-  var eventThis = null, eventTargetBinding = null;
+  var clickEventBinder = E.defStateEvent("click",
+                                         {this: true, args: ["target"]});
 
   wy.defineWidget({
     name: "sub-widget",
@@ -141,11 +131,7 @@ exports.testClickOnSubWidget = function testClickOnSubWidget(test) {
     },
     events: {
       root: {
-        click: function (targetBinding) {
-          clickedSubB = true;
-          eventThis = this;
-          eventTargetBinding = targetBinding;
-        }
+        click: clickEventBinder("subB:root"),
       }
     }
   });
@@ -162,107 +148,65 @@ exports.testClickOnSubWidget = function testClickOnSubWidget(test) {
     },
     events: {
       subA: {
-        click: function(targetBinding) {
-          clickedA = true;
-          eventThis = this;
-          eventTargetBinding = targetBinding;
-        },
+        click: clickEventBinder("subA"),
       },
       subB: {
-        click: function(targetBinding) {
-          clickedB = true;
-          eventThis = this;
-          eventTargetBinding = targetBinding;
-        }
+        click: clickEventBinder("subB"),
       },
       root: {
-        click: function(targetBinding) {
-          clickedRoot = true;
-          eventThis = this;
-          eventTargetBinding = targetBinding;
-        }
+        click: clickEventBinder("root"),
       }
     }
   });
 
-  test.waitUntilDone();
-  pth.makeTestPage(test, gotPage);
-  function gotPage(doc, win) {
+  E.inPage(function(doc, win) {
     var emitter = wy.wrapElement(doc.getElementById("root"));
     var bRoot = emitter.emit({type: "root-widget", obj: {}});
 
-    test.assert(bRoot, "Binding created?");
+    E.wmsyBindingAsHierarchy(bRoot, ":");
 
-    // - sub A => subA handler
-    var bSubA = bRoot.subA_element.binding;
-    function checkA() {
-      test.assert(clickedA, "subA should get a click event");
-      test.assert(!clickedB, "subB should not get a click event");
-      test.assert(!clickedSubB, "subB sub-widget should not get a click event");
-      test.assert(!clickedRoot, "root should not get a click event");
-      test.assertEqual(eventThis, bRoot, "this should be root binding's");
-      test.assertEqual(eventTargetBinding, bSubA,
-                       "target binding should be subA");
-      clickedA = false; // clean up
-    }
-    // clicking on "foo" under subA should trigger subA
-    sendMouseEvent({type: "click"}, bSubA.foo_element, win);
-    checkA();
+    var bSubA = E.getSubWidgetAndNameIt("subA");
+    var bSubB = E.getSubWidgetAndNameIt("subB"); // bRoot.subB_element.binding;
+    var bSubC = E.getSubWidgetAndNameIt("subC");
+
+    E.group("subA => subA handler on root widget");
+    E.round("click subA's foo, trigger subA")
+      .click(["subA", "foo"])
+      .state({subA: [{this: bRoot, target: bSubA}]});
     // clicking on the root of the sub-widget should work too.  (one DOM node
     //  effectively shared by the two bindings, which is interesting).
-    sendMouseEvent({type: "click"}, bSubA.domNode, win);
-    checkA();
+    E.round("click subA, trigger subA")
+      .click(["subA"])
+      .state({subA: [{this: bRoot, target: bSubA}]});
 
-    // - sub B => sub-widget handler
-    var bSubB = bRoot.subB_element.binding;
-    function checkSubB() {
-      test.assert(!clickedA, "subA should not get a click event");
-      test.assert(!clickedB, "subB should not get a click event");
-      test.assert(clickedSubB, "subB sub-widget should get a click event");
-      test.assert(!clickedRoot, "root should get a click event");
-      test.assertEqual(eventThis, bSubB, "this should be subB's binding");
-      test.assertEqual(eventTargetBinding, bSubB,
-                       "target binding should be subB");
-      clickedSubB = false; // clean up
-    }
-    sendMouseEvent({type: "click"}, bSubB.foo_element, win);
-    checkSubB();
-    sendMouseEvent({type: "click"}, bSubB.domNode, win);
-    checkSubB();
 
-    // - sub C => root handler
-    function checkRoot() {
-      test.assert(!clickedA, "subA should not get a click event");
-      test.assert(!clickedB, "subB should not get a click event");
-      test.assert(!clickedSubB, "subB sub-widget should not get a click event");
-      test.assert(clickedRoot, "root should get a click event");
-      test.assertEqual(eventThis, bRoot, "this should be root binding's");
-      test.assertEqual(eventTargetBinding, bSubC,
-                       "target binding should be subC");
-      clickedRoot = false; // clean up
-    }
-    var bSubC = bRoot.subC_element.binding;
-    // clicking on "foo" under subC should trigger root's root.
-    sendMouseEvent({type: "click"}, bSubC.foo_element, win);
-    checkRoot();
-    // likewise just on subC
-    sendMouseEvent({type: "click"}, bSubC.domNode, win);
-    checkRoot();
+    E.group("subB => root handler on subB widget");
+    E.round("click subB's foo, trigger subB:root")
+      .click(["subB", "foo"])
+      .state({"subB:root": [{this: bSubB, target: bSubB}]});
+    E.round("click subB, trigger subB:root")
+      .click(["subB"])
+      .state({"subB:root": [{this: bSubB, target: bSubB}]});
 
-    test.done();
-  }
+    E.group("subC => root handler on root widget");
+    E.round("click subC's foo, trigger root")
+      .click(["subC", "foo"])
+      .state({root: [{this: bRoot, target: bSubC}]});
+    E.round("click subC, trigger root")
+      .click(["subC"])
+      .state({root: [{this: bRoot, target: bSubC}]});
+  });
 };
 
 /**
  * - Clicking on a sub-widget created by a widget-list should fire the
  *   sub-element handler on the parent widget's sub-element.
  */
-exports.testClickOnWidgetList = function testClickOnWidgetList(test) {
+exports.testClickOnWidgetList = function testClickOnWidgetList(E) {
   var wy = new wmsy.WmsyDomain({id: "widgetlist", domain: "e-widgetlist"});
 
-  var clickedA = false, clickedB = false, clickedSubB = false,
-      clickedRoot = false;
-  var eventThis = null, eventTargetBinding = null;
+  var clickEventBinder = E.defStateEvent("click",
+                                         {this: true, args: ["target"]});
 
   wy.defineWidget({
     name: "sub-widget",
@@ -285,11 +229,7 @@ exports.testClickOnWidgetList = function testClickOnWidgetList(test) {
     },
     events: {
       root: {
-        click: function (targetBinding) {
-          clickedSubB = true;
-          eventThis = this;
-          eventTargetBinding = targetBinding;
-        }
+        click: clickEventBinder("subB:root"),
       }
     }
   });
@@ -306,26 +246,14 @@ exports.testClickOnWidgetList = function testClickOnWidgetList(test) {
     },
     events: {
       subA: {
-        click: function(targetBinding) {
-          clickedA = true;
-          eventThis = this;
-          eventTargetBinding = targetBinding;
-        },
+        click: clickEventBinder("subA"),
       },
       subB: {
-        click: function(targetBinding) {
-          clickedB = true;
-          eventThis = this;
-          eventTargetBinding = targetBinding;
-        }
+        click: clickEventBinder("subB"),
       },
       root: {
-        click: function(targetBinding) {
-          clickedRoot = true;
-          eventThis = this;
-          eventTargetBinding = targetBinding;
-        }
-      }
+        click: clickEventBinder("root"),
+      },
     }
   });
 
@@ -333,84 +261,43 @@ exports.testClickOnWidgetList = function testClickOnWidgetList(test) {
     kids: ["a", "b", "c"]
   };
 
-  test.waitUntilDone();
-  pth.makeTestPage(test, gotPage);
-  function gotPage(doc, win) {
+  E.inPage(function(doc, win) {
     var emitter = wy.wrapElement(doc.getElementById("root"));
     var bRoot = emitter.emit({type: "root-widget", obj: obj});
 
-    test.assert(bRoot, "Binding created?");
+    E.wmsyBindingAsHierarchy(bRoot, ":");
 
-    // - sub A => subA handler
-    var eSubA = bRoot.subA_element;
-    var bSubAkidA = eSubA.children[0].binding;
-    test.assertEqual(bSubAkidA.obj, "a");
-    function checkA(kidBinding) {
-      test.assert(clickedA, "subA should get a click event");
-      test.assert(!clickedB, "subB should not get a click event");
-      test.assert(!clickedSubB, "subB sub-widget should not get a click event");
-      test.assert(!clickedRoot, "root should not get a click event");
-      test.assertEqual(eventThis, bRoot, "this should be root binding's");
-      test.assertEqual(eventTargetBinding, kidBinding,
-                       "target binding obj should be desired kid binding");
-      clickedA = false; // clean up
-    }
-    // clicking on "foo" under subA's kid A should trigger subA
-    sendMouseEvent({type: "click"}, bSubAkidA.foo_element, win);
-    checkA(bSubAkidA);
-    // kid A's root too...
-    sendMouseEvent({type: "click"}, bSubAkidA.domNode, win);
-    checkA(bSubAkidA);
-    // kid B too...
-    var bSubAkidB = eSubA.children[1].binding;
-    test.assertEqual(bSubAkidB.obj, "b");
-    sendMouseEvent({type: "click"}, bSubAkidB.foo_element, win);
-    checkA(bSubAkidB);
-    // kid A's root too...
-    sendMouseEvent({type: "click"}, bSubAkidB.domNode, win);
-    checkA(bSubAkidB);
+    E.group("subA list items => subA handler");
+    var bSubAKidA = E.getSubWidgetAndNameIt(["subA", 0]),
+        bSubAKidB = E.getSubWidgetAndNameIt(["subA", 1]);
+    E.round("click subA's item 0's foo, trigger subA")
+      .click(["subA", 0, "foo"])
+      .state({subA: [{this: bRoot, target: bSubAKidA}]});
+    E.round("click subA's item 0's root, trigger subA")
+      .click(["subA", 0])
+      .state({subA: [{this: bRoot, target: bSubAKidA}]});
+    E.round("click subA's item 1's root, trigger subA")
+      .click(["subA", 1])
+      .state({subA: [{this: bRoot, target: bSubAKidB}]});
 
+    E.group("subB list items => sub-widget handlers");
+    var bSubBKidC = E.getSubWidgetAndNameIt(["subB", 2]);
+    E.round("click subB's item 2's foo, trigger sub-widget handler")
+      .click(["subB", 2, "foo"])
+      .state({"subB:root": [{this: bSubBKidC, target: bSubBKidC}]});
+    E.round("click subB's item 2's root, trigger sub-widget handler")
+      .click(["subB", 2])
+      .state({"subB:root": [{this: bSubBKidC, target: bSubBKidC}]});
 
-    // - sub B => sub-widget handler
-    var eSubB = bRoot.subB_element;
-    var bSubBkidC = eSubB.children[2].binding;
-    function checkSubB() {
-      test.assert(!clickedA, "subA should not get a click event");
-      test.assert(!clickedB, "subB should not get a click event");
-      test.assert(clickedSubB, "subB sub-widget should get a click event");
-      test.assert(!clickedRoot, "root should get a click event");
-      test.assertEqual(eventThis, bSubBkidC, "this should be b-c's binding");
-      test.assertEqual(eventTargetBinding, bSubBkidC,
-                       "target binding should be subBkidC");
-      clickedSubB = false; // clean up
-    }
-    sendMouseEvent({type: "click"}, bSubBkidC.foo_element, win);
-    checkSubB();
-    sendMouseEvent({type: "click"}, bSubBkidC.domNode, win);
-    checkSubB();
-
-    // - sub C => root handler
-    var eSubC = bRoot.subC_element;
-    var bSubCkidB = eSubC.children[1].binding;
-    function checkRoot() {
-      test.assert(!clickedA, "subA should not get a click event");
-      test.assert(!clickedB, "subB should not get a click event");
-      test.assert(!clickedSubB, "subB sub-widget should not get a click event");
-      test.assert(clickedRoot, "root should get a click event");
-      test.assertEqual(eventThis, bRoot, "this should be root binding's");
-      test.assertEqual(eventTargetBinding, bSubCkidB,
-                       "target binding should be subC");
-      clickedRoot = false; // clean up
-    }
-    // clicking on "foo" under subC should trigger root's root.
-    sendMouseEvent({type: "click"}, bSubCkidB.foo_element, win);
-    checkRoot();
-    // likewise just on subC
-    sendMouseEvent({type: "click"}, bSubCkidB.domNode, win);
-    checkRoot();
-
-    test.done();
-  }
+    E.group("subC list items => root handler");
+    var bSubCKidB = E.getSubWidgetAndNameIt(["subC", 1]);
+    E.round("click subC's item 1's foo, trigger root handler")
+      .click(["subC", 1, "foo"])
+      .state({root: [{this: bRoot, target: bSubCKidB}]});
+    E.round("click subC's item 1's root, trigger root handler")
+      .click(["subC", 1, "foo"])
+      .state({root: [{this: bRoot, target: bSubCKidB}]});
+  });
 };
 
 }); // end define
