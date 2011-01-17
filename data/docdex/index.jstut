@@ -4,11 +4,11 @@
 
 @itemize[
   @item{
-    @doclink["docdex/hardsell.skwbl"]{The Hard Sell}: Why does wmsy exist
+    @doclink["docdex/hardsell.jstut"]{The Hard Sell}: Why does wmsy exist
     and why would I want to use it?
   }
   @item{
-    @doclink["docdex/features.skwbl"]{Features}: What does wmsy do?
+    @doclink["docdex/features.jstut"]{Features}: What does wmsy do?
   }
 ]
 
@@ -19,24 +19,24 @@
 
 @itemize[
   @item{
-    @doclink["tutorial/messages.skwbl"]{Messages}: A quick introduction to
+    @doclink["tutorial/messages.jstut"]{Messages}: A quick introduction to
     wmsy using messaging as the example domain.
   }
   @item{
-    @doclink["refdocs/antics.skwbl"]{Antics}: Animating the addition, copying,
+    @doclink["refdocs/antics.jstut"]{Antics}: Animating the addition, copying,
     movement, or removal of widgets/the objects they are bound to.
   }
 @;{
   @item{
-    @doclink["tutorial/focus.skwbl"]{Focus}: Leveraging the built-in focus
+    @doclink["tutorial/focus.jstut"]{Focus}: Leveraging the built-in focus
     support.
   }
   @item{
-    @doclink["tutorial/ext-basics.skwbl"]{Extension Basics}: How to replace
+    @doclink["tutorial/ext-basics.jstut"]{Extension Basics}: How to replace
     or specialize existing widgets.
   }
   @item{
-    @doclink["tutorial/styling-basics.skwbl"]{Styling/Theming}: How to
+    @doclink["tutorial/styling-basics.jstut"]{Styling/Theming}: How to
     change the look of things without defining new widgets.
   }
 }]
@@ -44,12 +44,12 @@
 @subsection{Fancy}
 
 @itemize[
-  @item{@doclink["refdocs/emitreceive.skwbl"]{emit/receive/relay}:
+  @item{@doclink["refdocs/emitreceive.jstut"]{emit/receive/relay}:
         Communication between widgets.}
-  @item{@doclink["refdocs/viewslice.skwbl"]{View Slices}: a protocol for
+  @item{@doclink["refdocs/viewslice.jstut"]{View Slices}: a protocol for
         displaying a subset of data when it's too expensive or just infeasible
         to display it all at once. @itemize[
-    @item{@doclink["refdocs/viewslice-interposing.skwbl"]{Interposing View
+    @item{@doclink["refdocs/viewslice-interposing.jstut"]{Interposing View
           Slices}: A way to dynamically inject synthetic objects into a view
           slice.  For example, putting a giant letter in an address book before
           the first name that starts with that letter.}

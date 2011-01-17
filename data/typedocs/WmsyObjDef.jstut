@@ -134,7 +134,7 @@
       Mechanisms to support loosely coupled widget communication using an ad-hoc
       signal mechanism.  Links are established at widget binding time resulting
       in efficient dispatch.
-      @topiclink["refdocs/emitreceive.skwbl"]{tutorial}
+      @topiclink["refdocs/emitreceive.jstut"]{tutorial}
     }
 
     @key["emit" #:optional @listof["signal name" String]{
