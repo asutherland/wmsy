@@ -1,5 +1,6 @@
 #lang narscribblus/manual
 
+@;{
 @section{Propaganda}
 
 @itemize[
@@ -11,26 +12,98 @@
     @doclink["docdex/features.jstut"]{Features}: What does wmsy do?
   }
 ]
+}
 
+@;{
+@section{Examptorials}
 
-@section{Tutorials}
-
-@subsection{Basics}
+Show me everything at-once and I'll try and keep up. 
 
 @itemize[
   @item{
     @doclink["tutorial/messages.jstut"]{Messages}: A quick introduction to
     wmsy using messaging as the example domain.
   }
+]
+}
+
+@section{Refxamples}
+
+@subsection{Hello, World?}
+
+How do I make a widget appear on the page?
+
+@itemize[
+  @item{
+    @doclink["refdocs/boilerplate.jstut"]{Boilerplate / Hello World}:  The stuff
+    you have to type every time.  Oy!
+  }
+]
+
+@subsection{Still Life}
+
+What makes it appear on the page and why does it appear that way?
+
+@itemize[
+  @item{
+    @doclink["refdocs/constraints.jstut"]{Widget Constraints}: How to define
+    when to use a widget.
+  }
+  @item{
+    @doclink["refdocs/structure.jstut"]{Widget Structure}: Defining the DOM
+    structure of your widget and sub/child widgets.
+  }
+  @item{
+    @doclink["refdocs/style-attr.jstut"]{The Style Attribute}: How to style
+    things using the style attribute when defining a widget.  This is for
+    developers; your graphic designer can work their magic externally.
+  }
+]
+
+@subsection{Action Scene}
+
+How do I make the widgets do things?
+
+@itemize[
+  @item{
+    @doclink["refdocs/events.jstut"]{Events}: Event handling.
+  }
+  @item{
+    @doclink["refdocs/focus.jstut"]{Focus}: Leveraging the built-in focus
+    support.
+  }
+  @item{@doclink["refdocs/emitreceive.jstut"]{emit/receive/relay}:
+        Communication between widgets.}
+]
+
+@subsection{Special Effects}
+
+Again, but with explosions!
+
+@itemize[
   @item{
     @doclink["refdocs/antics.jstut"]{Antics}: Animating the addition, copying,
     movement, or removal of widgets/the objects they are bound to.
   }
-@;{
   @item{
-    @doclink["tutorial/focus.jstut"]{Focus}: Leveraging the built-in focus
-    support.
-  }
+    View Slices: a protocol for displaying a subset of data when it's too
+    expensive or just infeasible to display it all at once.
+
+    @itemize[
+      @item{
+        @doclink["refdocs/viewslice-interposing.jstut"]{Interposing View
+        Slices}: A way to dynamically inject synthetic objects into a view
+        slice.  For example, putting a giant letter in an address book before
+        the first name that starts with that letter.}
+  ]}
+]
+
+@subsection{Mash Up}
+
+That's great, but I want the world to be able to extend what I've built.
+
+@;{
+@itemize[
   @item{
     @doclink["tutorial/ext-basics.jstut"]{Extension Basics}: How to replace
     or specialize existing widgets.
@@ -39,26 +112,5 @@
     @doclink["tutorial/styling-basics.jstut"]{Styling/Theming}: How to
     change the look of things without defining new widgets.
   }
-}]
-
-@subsection{Fancy}
-
-@itemize[
-  @item{@doclink["refdocs/emitreceive.jstut"]{emit/receive/relay}:
-        Communication between widgets.}
-  @item{@doclink["refdocs/viewslice.jstut"]{View Slices}: a protocol for
-        displaying a subset of data when it's too expensive or just infeasible
-        to display it all at once. @itemize[
-    @item{@doclink["refdocs/viewslice-interposing.jstut"]{Interposing View
-          Slices}: A way to dynamically inject synthetic objects into a view
-          slice.  For example, putting a giant letter in an address book before
-          the first name that starts with that letter.}
-  ]}
 ]
-
-@section{API Reference}
-
-@itemize[
-  @item{@doclink["docdex/pubtypes.swkbl"]{Public Data Types}}
-]
-
+}

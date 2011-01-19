@@ -1,0 +1,32 @@
+#lang narscribblus/interactive
+
+@title{Wmsy Boilerplate / Hello World}
+
+@subsection{require("wmsy/wmsy");}
+
+wmsy is implemented using the CommonJS
+@weblink["http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition"]{
+Asynchronous Module Definition} proposal.  As long as your module loader speaks
+this, you can use wmsy.  For web content purposes, I suggest
+@weblink["http://requirejs.org/"]{RequireJS}.  If you are using the Mozilla
+Add-On SDK/Jetpack, its loader should work automatically.
+
+@js{
+  var wmsy = require("wmsy/wmsy");
+}
+
+All of our tutorial/reference code uses synchronous require invocations for
+simplicity, but wmsy internally uses the asynchronous define() variant where
+all dependencies are explicitly named (thereby avoiding regular expressions
+being run against the source).
+
+
+@subsection{Define a WmsyDomain}
+
+@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
+}]
+
