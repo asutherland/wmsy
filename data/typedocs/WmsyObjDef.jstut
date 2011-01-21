@@ -117,13 +117,33 @@
     }
 
     @key["focus" #:optional @oneof[
-      WmsyExportDomain.focus.domain.horizontal
-      WmsyExportDomain.focus.domain.vertical
-      WmsyExportDomain.focus.container.horizontal
-      WmsyExportDomain.focus.container.vertical
-      WmsyExportDomain.focus.nestedItem.horizontal
-      WmsyExportDomain.focus.nestedItem.vertical
-      WmsyExportDomain.focus.item
+      @case[WmsyExportDomain.focus.item]{
+        It is a focusable item, but nothing inside it is focusable.
+      }
+      @case[WmsyExportDomain.focus.nestedItem.horizontal]{
+        It is a focusable item and has horizontally arranged focusable children
+        (or at least that's how the keybindings should see it).
+      }
+      @case[WmsyExportDomain.focus.nestedItem.vertical]{
+        It is a focusable item and has vertically arranged focusable children
+        (or at least that's how the keybindings should see it).
+      }
+      @case[WmsyExportDomain.focus.container.horizontal]{
+        It is not focusable itself, but has horizontally arranged children that
+        may be receptive to focus.
+      }
+      @case[WmsyExportDomain.focus.container.vertical]{
+        It is not focusable itself, but has vertically arranged children that
+        may be receptive to focus.
+      }
+      @case[WmsyExportDomain.focus.domain.horizontal]{
+        A horizontal focus container that should maintain a focused item
+        whose state is unaffected by the focus of other focus domains.
+      }
+      @case[WmsyExportDomain.focus.domain.vertical]{
+        A vertical focus container that should maintain a focused item
+        whose state is unaffected by the focus of other focus domains.
+      }
     ]]{
       How does this widget deal with focus, if at all?
     }
