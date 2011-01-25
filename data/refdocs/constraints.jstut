@@ -2,3 +2,137 @@
 
 @title{Constraints: How We Decide What Widget To Bind}
 
+A central assumption of wmsy is that when we are first writing a program we
+cannot say conclusively what the most appropriate widget for an object could be.
+New data types could be introduced to the system via extensions, or extensions
+can provide more appropriate specific views on data types already known to the
+system.
+
+What a program must attempt to do is describe the context in which a widget will
+be bound.  What a widget must do is describe the context in which it is
+appropriate and the kind of objects for which it is most appropriate.
+
+For example, in the messaging domain there are a variety of types of messages
+that are used: e-mails (epic and short), instant messages, tweets, etc.  Each
+is accompanied by varying levels of meta-information and context, and
+accordingly each might make sense to have their own specific message
+presentations.
+
+Let us start out with a simple contact and message representation:
+
+@exampleCode["msg-rep-simple"
+@js{
+  function Contact(kind, value, name) {
+    this.kind = kind;
+    this.value = value;
+    this.name = name;
+  }
+
+  function Message(kind, author, recipients, inReplyTo, subject, body) {
+    this.kind = kind;
+    this.author = author;
+    this.recipients = recepients;
+    this.replyTo = inReplyTo;
+    this.subject = subject;
+    this.body = body;
+  }
+}]
+
+And let's create some contacts and messages between them using various message
+types:
+
+@exampleCode["msgs-one" #:deps "msg-rep-simple"
+@js{
+  var AliceMail = new Contact("email", "alice@example.com", "Alice");
+  var BobMail = new Contact("email", "bob@example.com", "Bob");
+  var ChuckMail = new Contact("email", "chuck@example.com", "Chuck");
+
+  var DougTwit = new Contact("twitter", "dougxample", "Doug");
+  var ElizaTwit = new Contact("twitter", "elizample", "Eliza");
+
+  var msgs = [];
+  msgs.push(new Message("email", AliceMail, [BobMail], null,
+                        "Good day, sir!",
+                        "See subject"));
+  msgs.push(new Message("tweet", DougTwit, [], null, null,
+                        "Alice and I just watched a historical drama!"));
+  msgs.push(new Message("email", BobMail, [AliceMail], msgs[0],
+                        "Re: Good day, sir!",
+                        "Thanks, you have a good day too!"));
+  msgs.push(new Message("email", AliceMail, [BobMail], msgs[1],
+                        "Re: Good day, sir!",
+                        "I said, good day!"));
+  msgs.push(new Message("tweet", ElizaTwit, [], null,
+                        "I just bought Bob some dueling pistols!"));
+  msgs.push(new Message("email", BobMail, [AliceMail, ChuckMail], null,
+                        "Duel",
+                        "Alice, I challenge you to a duel! Chuck: witness."));
+}]
+
+Now let's create a single message widget that knows how to display all types of
+messages, and a single contact widget that knows how to display all types of
+contacts.
+
+@exampleCode["msg-widget-just-one" #:deps "wmsy-prolog"
+@js{
+  wy.defineWidget({
+    name: "contact-generic",
+    doc: "Unspecialized contact display widget.",
+    constraint: {
+      type: "contact",
+      obj: {kind: wy.WILD},
+    },
+    structure: {
+      name: wy.bind("name"),
+    },
+  });
+
+  wy.defineWidget({
+    name: "message-common",
+    doc: "Unspecialized message display widget.",
+    constraint: {
+      type: "message",
+      obj: {kind: wy.WILD},
+    },
+    structure: {
+      author: wy.widget({type: "contact"}, "author"),
+      recipients: wy.horizList({type: "contact"}, "recipients"),
+      subject: wy.bind("subject"),
+      body: wy.bind("body"),
+    },
+  });
+}]
+
+And let's see what happens when we display our messages with those widgets:
+
+@exampleShow["message-common-example"
+  "msg-rep-simple" "msgs-simple"
+  "wmsy-prolog" "msg-widget-just-one"
+]{Messages with Generic Bindings}
+
+But what if we were to create a specialized tweet display?
+
+@exampleCode["msg-widget-tweet" #:deps "wmsy-prolog"
+@js{
+  wy.defineWidget({
+    name: "message-tweet",
+    doc: "Specialized tweet display widget.",
+    constraint: {
+      type: "message",
+      obj: {kind: "tweet"},
+    },
+    structure: {
+      author: wy.widget({type: "contact"}, "author"),
+      body: wy.bind("body"),
+    },
+    style: {
+    },
+  });
+}]
+
+@collapsed["Wmsy Boilerplate"]{@boilerplate["wmsy-prolog"
+@js{
+  var wmsy = require("wmsy/wmsy");
+  var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
+                                clickToFocus: true});
+}]}
