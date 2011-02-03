@@ -101,13 +101,25 @@ contacts.
       body: wy.bind("body"),
     },
   });
+
+  wy.defineWidget({
+    name: "messages-list",
+    doc: "Multiple messages (maybe)!",
+    constraint: {
+      type: "message-list",
+    },
+    structure: {
+      messages: wy.vertList({type: "message"}, wy.SELF),
+    },
+  });
 }]
 
 And let's see what happens when we display our messages with those widgets:
 
 @exampleShow["message-common-example"
-  "msg-rep-simple" "msgs-simple"
+  "msg-rep-simple" "msgs-one"
   "wmsy-prolog" "msg-widget-just-one"
+  "msg-insertion"
 ]{Messages with Generic Bindings}
 
 But what if we were to create a specialized tweet display?
@@ -136,3 +148,11 @@ But what if we were to create a specialized tweet display?
   var wy = new wmsy.WmsyDomain({id: exampleName, domain: exampleName,
                                 clickToFocus: true});
 }]}
+
+@collapsed["Message Insertion"]{
+@exampleCode["msg-insertion" #:deps "wmsy-prolog" "msgs-one"
+@js{
+  var binder = wy.wrapElement(exampleDomNode);
+  binder.bind({type: "message-list", obj: msgs});
+}]}
+
