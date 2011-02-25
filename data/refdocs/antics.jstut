@@ -56,8 +56,8 @@ automatically generate animations.  The things you need to do are to:
     events: {
     },
     style: {
-      invited: ".partyList",
-      uninvited: ".partyList",
+      invited: ".partyList;",
+      uninvited: ".partyList;",
     },
   });
 }]]
