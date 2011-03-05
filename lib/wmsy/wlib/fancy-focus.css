@@ -1,0 +1,15 @@
+#fancy-focus {
+  #root {
+    /* this causes us not to eat clicks! important! */
+    pointer-events: none;
+    box-shadow: 0 0 6px 3px orange;
+    position: absolute;
+    z-index: 1000;
+    transition-property: left, top, width, height;
+    transition-duration: 0.2s;
+    left: -10px;
+    top: -10px;
+    height: 5px;
+    width: 5px;
+  }
+}

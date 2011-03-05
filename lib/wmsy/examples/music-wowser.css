@@ -1,0 +1,89 @@
+@album-line-height: 170px;
+@album-big: 150px;
+@album-small: 50px;
+
+#wowser-root-ui {
+  #root {
+    font-family: sans-serif;
+  }
+}
+
+#play-control {
+  #queueLabel {
+    font-size: 150%;
+  }
+  #queued {
+    line-height: @album-line-height;
+  }
+}
+
+#artist-detail-view {
+  #artistLabel {
+    font-size: 200%;
+    font-family: sans-serif;
+  }
+  #albums {
+    text-align: center;
+    line-height: @album-line-height;
+  }
+  #singles {
+    line-height: @album-line-height;
+  }
+}
+
+#artist_album-list {
+}
+
+#artist_singles-list {
+  #root {
+    width: 100%;
+    overflow: hidden;
+  }
+  #albumGroups {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
+#album-group {
+  #root {
+      display: inline-block;
+      padding: 2px;
+      border: 1px solid #fff;
+      background-color: #eee;
+  }
+  #root[active="true"] {
+    background-color: #fff;
+    border: 1px solid #000;
+  }
+}
+
+#album-overview-medium {
+  #root {
+      display: inline-block;
+      padding: 4px;
+      vertical-align: middle;      
+
+  }
+  #root:focused {
+      background-color: #88c;      
+
+      #cover {
+        width: @album-big;
+        height: @album-big
+      }
+  }
+  #cover {
+    display: block;
+    image-rendering: optimizeQuality;
+    width: @album-small;
+    height: @album-small;
+    background-color: #c88;
+    transition-property: width, height;
+    transition-duration: 0.3s;
+  }
+  #albumTitle {
+    display: none;
+    text-align: center;
+  }
+}

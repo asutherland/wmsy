@@ -1,0 +1,57 @@
+.message (@color: #000) {
+  border-radius: 4px;
+  margin: 2px;
+  padding: 2px;
+  background-color: @color;
+}
+
+#identity-default {
+  #root {
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #ddd;
+    padding: 0px 2px;
+  }
+  #star {
+  }
+  #star[starred="true"] {
+    display: inline-block;
+    width: 12px !important;
+    height: 12px;
+    background-image: url(star.png);
+  }
+}
+
+#message-default {
+  #root {
+    .message(#729fcf);
+  }
+  #subject {
+    font-weight: bold;
+  }
+  #bodyBlock {
+    margin: 2px;
+    padding: 2px;
+    border-radius: 2px;
+    background-color: #ffffff;
+  }
+  #body {
+    white-space: pre-wrap;
+  }
+}
+
+#message-tweet {
+  #root {
+    .message(#ad7fa8);
+  }
+  #body {
+    margin-left: 4px;
+  }
+}
+
+#compose {
+  #contents {
+    width: 20em;
+  }
+}
+
