@@ -9,6 +9,7 @@
     transition-duration: 0.2s;
     /* start out transparent, fade in... */
     opacity: 0.0;
+    z-index: 100;
   }
   #contents {
     /* start a new containing block so position:absolutes scroll within us. */
