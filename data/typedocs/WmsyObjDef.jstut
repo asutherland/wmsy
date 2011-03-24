@@ -213,9 +213,9 @@
   @key[position PositionDef]
   @key[size #:optional @dict[
     @key[width #:optional CSSDimOrMagicPercentage]
-    @key[maxWidth #:optional CSSDim]
+    @key[maxWidth #:optional CSSDimOrMagicPercentage]
     @key[height #:optional CSSDimOrMagicPercentage]
-    @key[maxHeight #:optional CSSDim]
+    @key[maxHeight #:optional CSSDimOrMagicPercentage]
   ]]{
     Provide explicit sizing for the pop-up.  The popup's DOM node will be a
     child of the document's body element, so string percentages will reference
