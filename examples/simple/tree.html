@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Wmsy Simple Tree Example</title>
+    <script type="text/javascript">
+      var console;
+      if (!console)
+        console = {
+          log: function() {},
+          error: function() {},
+          info: function() {},
+          warn: function() {},
+      };
+      function dump(aMsgWithNewline) {
+        console.log(aMsgWithNewline.replace("\n", "", "g"));
+      }
+    </script>
+    <script type="text/javascript" src="../../../requirejs/require.js"></script>
+    <script>
+      require(
+        {
+          baseUrl: "../../../",
+          paths: {
+            "requirejs": "requirejs/build/convert/commonjs",
+            "require": "requirejs/require",
+            "wmsy": "wmsy/lib/wmsy",
+          },
+        },
+        ["requirejs/global-es5", "wmsy/examples/tree-simple"],
+        function(es5, mainModule) {
+          mainModule.main("../../data/examples/simple/", document);
+        }
+      );
+    </script>
+  </head>
+<body>
+  <div id="content" style="display: inline-block;">
+  </div>
+</body>
+</html>
