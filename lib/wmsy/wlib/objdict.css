@@ -6,6 +6,7 @@
   #keyCell {
     font-weight: bold;
     background-color: #ddd;
+    padding: 2px;
   }
   #valueCell {
   }
