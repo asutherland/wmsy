@@ -402,4 +402,53 @@ exports.testExternalChangesAndNoteRanges = function(test) {
   test.assertSamey(list, ["(", "b", "bc", "d", ")"]);
 };
 
+exports.testHighLevelMutationHelpers = function(test) {
+  function nameFetcher(o) {
+    return o;
+  }
+  function nameComparator(a, b) {
+    return a.localeCompare(b);
+  }
+  var listener = {
+    didSplice: function(aIndex, aHowMany, aItems, aRequested, aMoreExpected,
+                        aSlice) {
+    },
+    didSeek: function(aItems, aMoreExpected, aSlice) {
+    },
+  };
+
+  var list = [];
+  var slice = new vst.ArrayViewSlice(list, listener, null,
+                                      nameFetcher, nameComparator);
+
+  slice.add("free");
+  test.assertEqual(list.toString(), ["free"].toString());
+
+  slice.add("alloca");
+  test.assertEqual(list.toString(), ["alloca", "free"].toString());
+
+  slice.add("calloc");
+  test.assertEqual(list.toString(), ["alloca", "calloc", "free"].toString());
+
+  slice.add("malloc");
+  test.assertEqual(list.toString(),
+                   ["alloca", "calloc", "free", "malloc"].toString());
+
+  slice.remove("free");
+  test.assertEqual(list.toString(),
+                   ["alloca", "calloc", "malloc"].toString());
+
+  slice.remove("alloca");
+  test.assertEqual(list.toString(),
+                   ["calloc", "malloc"].toString());
+
+  slice.remove("malloc");
+  test.assertEqual(list.toString(),
+                   ["calloc"].toString());
+
+  slice.remove("calloc");
+  test.assertEqual(list.toString(),
+                   [].toString());
+};
+
 }); // end define
