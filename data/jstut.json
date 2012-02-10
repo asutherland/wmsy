@@ -1,0 +1,12 @@
+{
+  "us": {
+    "name": "wmsy",
+    "root": "../",
+    "mappings": {
+      "wmsy": "lib/wmsy",
+      "wmsy-plat": "lib-requirejs/wmsy-plat"
+    }
+  },
+  "deps": {
+  }
+}

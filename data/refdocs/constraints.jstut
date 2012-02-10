@@ -1,4 +1,4 @@
-#lang narscribblus/interactive
+#lang jstut/interactive
 
 @title{Constraints: How We Decide What Widget To Bind}
 

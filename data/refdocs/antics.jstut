@@ -1,4 +1,4 @@
-#lang narscribblus/interactive
+#lang jstut/interactive
 
 @title{Antics: Animation for Cheap}
 

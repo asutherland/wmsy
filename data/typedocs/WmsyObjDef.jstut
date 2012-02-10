@@ -1,4 +1,4 @@
-#lang narscribblus/interactive
+#lang jstut/interactive
 
 @typedef["WidgetDef" @dict[
   @key["name" #:required String]{

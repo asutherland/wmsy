@@ -3,6 +3,6 @@
     "main": "wmsy/main-driver", 
     "name": "wmsy", 
     "description": "Widget Manifesting SYstem",
-    "dependencies": ["narscribblus"],
+    "dependencies": ["jstut"],
     "lib": ["lib", "lib-jetpack"]
 }
